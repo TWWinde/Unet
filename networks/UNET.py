@@ -21,9 +21,9 @@ import torch.nn as nn
 
 class UNet(nn.Module):
 
-    def __init__(self, num_classes, in_channels=1, initial_filter_size=64, kernel_size=3, do_instancenorm=True):
+    def __init__(self, opt, num_classes, in_channels=1, initial_filter_size=64, kernel_size=3, do_instancenorm=True):
         super().__init__()
-
+        self.opt = opt
         self.contr_1_1 = self.contract(in_channels, initial_filter_size, kernel_size, instancenorm=do_instancenorm)
         self.contr_1_2 = self.contract(initial_filter_size, initial_filter_size, kernel_size, instancenorm=do_instancenorm)
         self.pool = nn.MaxPool2d(2, stride=2)

@@ -25,62 +25,55 @@ ce_loss = torch.nn.CrossEntropyLoss()  # No softmax for CE Loss -> is implemente
 
 optimizer = optim.Adam(model.parameters(), lr=opt.lr)
 scheduler = ReduceLROnPlateau(optimizer, 'min')
-
-# If directory for checkpoint is provided, we load it.
-if opt.do_load_checkpoint:
-    if opt.checkpoints_dir == '':
-        print('checkpoint_dir is empty, please provide directory to load checkpoint.')
-    else:
-        self.load_checkpoint(name=opt.checkpoints_dir, save_types=("model",))
-
-        self.save_checkpoint(name="checkpoint_start")
-        self.elog.print('Experiment set up.')
+visualizer_losses = utils.losses_saver(opt)
+# If directory for checkpoint is provided, load it.
 
 
 print('=====TRAIN=====')
 model.train()
-batch_counter = 0
+
 
 def loopy_iter(dataset):
     while True :
         for item in dataset :
             yield item
-
+cur_iter = 0
 #--- the training loop ---#
 already_started = False
 start_epoch, start_iter = utils.get_start_iters(opt.loaded_latest_iter, len(dataloader))
 for epoch in range(start_epoch, opt.num_epochs):
-for data_batch in self.train_data_loader:
+    for i, data_i in enumerate(dataloader):
 
-    self.optimizer.zero_grad()
+        cur_iter = epoch*len(dataloader) + i
 
-    # Shape of data_batch = [1, b, c, w, h]
-    # Desired shape = [b, c, w, h]
-    # Move data and target to the GPU
+        image, label = data_i
+        model.zero_grad()
+        optimizer.zero_grad()
 
-    pred = model(data)
-    pred_softmax = F.softmax(pred,dim=1)  # We calculate a softmax, because our SoftDiceLoss expects that as an input. The CE-Loss does the softmax internally.
+        # Shape of data_batch = [1, b, c, w, h]
+        # Desired shape = [b, c, w, h]
+        # Move data and target to the GPU
 
-    loss = self.dice_loss(pred_softmax, target.squeeze()) + self.ce_loss(pred, target.squeeze())
-    # loss = self.ce_loss(pred, target.squeeze())
+        pred = model(image)
+        pred_softmax = F.softmax(pred, dim=1)  # We calculate a softmax, because our SoftDiceLoss expects that as an input. The CE-Loss does the softmax internally.
 
-    loss.backward()
-    self.optimizer.step()
+        loss = dice_loss(pred_softmax, label.squeeze()) + ce_loss(pred, label.squeeze())
+        # loss = self.ce_loss(pred, target.squeeze())
 
-    # Some logging and plotting
-    if (batch_counter % self.config.plot_freq) == 0:
-        self.elog.print('Epoch: {0} Loss: {1:.4f}'.format(self._epoch_idx, loss))
+        loss.backward()
+        optimizer.step()
 
-        self.add_result(value=loss.item(), name='Train_Loss', tag='Loss',
-                        counter=epoch + (batch_counter / self.train_data_loader.data_loader.num_batches))
+        # Some logging and plotting
+        if (i % opt.freq_plot_loss) == 0:
+            print('Epoch: {0} Loss: {1:.4f}'.format(epoch, loss))
+        if cur_iter % opt.freq_save_latest == 0:
+            utils.save_networks(opt, cur_iter, model, latest=True)
+        visualizer_losses(cur_iter, loss)
 
-        self.clog.show_image_grid(data.float().cpu(), name="data", normalize=True, scale_each=True, n_iter=epoch)
-        self.clog.show_image_grid(target.float().cpu(), name="mask", title="Mask", n_iter=epoch)
-        self.clog.show_image_grid(pred.cpu()[:, 1:2, ], name="unt", normalize=True, scale_each=True, n_iter=epoch)
+        if cur_iter % opt.freq_print == 0:
+            im_saver.visualize_batch(model, image, label, cur_iter)
 
-    batch_counter += 1
 
-assert data is not None, 'data is None. Please check if your dataloader works properly'
 
 
     def validate(self, epoch):
@@ -95,13 +88,13 @@ assert data is not None, 'data is None. Please check if your dataloader works pr
                 data = data_batch['data'][0].float().to(self.device)
                 target = data_batch['seg'][0].long().to(self.device)
 
-                pred = self.model(data)
+                pred = model(data)
                 pred_softmax = F.softmax(pred, dim=1)  # We calculate a softmax, because our SoftDiceLoss expects that as an input. The CE-Loss does the softmax internally.
 
-                loss = self.dice_loss(pred_softmax, target.squeeze()) + self.ce_loss(pred, target.squeeze())
+                loss = dice_loss(pred_softmax, target.squeeze()) + self.ce_loss(pred, target.squeeze())
                 loss_list.append(loss.item())
 
-        assert data is not None, 'data is None. Please check if your dataloader works properly'
+
         self.scheduler.step(np.mean(loss_list))
 
         self.elog.print('Epoch: %d Loss: %.4f' % (self._epoch_idx, float(np.mean(loss_list))))

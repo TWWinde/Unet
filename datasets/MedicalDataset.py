@@ -28,7 +28,7 @@ class MedicalDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         image = Image.open(self.images[idx]) #self.mixed_index[idx]
-        # image = image.convert('RGB')
+        image = image.convert('RGB')
         label = Image.open(self.labels[idx])
         image, label = self.transforms(image, label)
         label = label * 255

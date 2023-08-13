@@ -6,12 +6,11 @@ from torchvision.transforms import functional
 import os
 from PIL import Image
 import numpy as np
-from tqdm import tqdm
 from torch.utils import data
 
 
-class MedicalImagesDataset(torch.utils.data.Dataset):
-    def __init__(self, opt, for_metrics, for_supervision=False):
+class MedicalDataset(torch.utils.data.Dataset):
+    def __init__(self, opt, for_metrics):
 
         opt.load_size = 256 if for_metrics else 256
         opt.crop_size = 256 if for_metrics else 256
@@ -36,7 +35,7 @@ class MedicalImagesDataset(torch.utils.data.Dataset):
         return {"image": image, "label": label}
 
     def list_images(self):
-        mode = "val" if self.opt.phase == "test" or self.for_metrics else "train"
+        mode = "val" if self.opt.phase == "test" else "train"
         images = []
         path_img = os.path.join(self.opt.dataroot, mode, "CT")
         for item in sorted(os.listdir(path_img)):

@@ -3,14 +3,14 @@ import torch
 
 def get_dataset_name(mode):
     if mode == "medicals":
-        return "MedicalImagesDataset"
+        return "MedicalDataset"
     else:
         ValueError("There is no such dataset regime as %s" % mode)
 
 def get_dataloaders(opt):
     dataset_name   = get_dataset_name(opt.dataset_mode)
 
-    file = __import__("dataloaders."+dataset_name)
+    file = __import__("datasets."+dataset_name)
     dataset_train = file.__dict__[dataset_name].__dict__[dataset_name](opt, for_metrics=False)
     dataset_supervised = file.__dict__[dataset_name].__dict__[dataset_name](opt,for_metrics = False ,for_supervision = True)
     dataset_val   = file.__dict__[dataset_name].__dict__[dataset_name](opt, for_metrics=True)

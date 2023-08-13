@@ -4,10 +4,8 @@ import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torch.nn.functional as F
-
 from datasets.utils import preprocess_input
 from utilities import utils
-
 from datasets import dataloaders
 from networks.UNET import UNet
 from loss_functions.dice_loss import SoftDiceLoss

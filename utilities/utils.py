@@ -25,20 +25,27 @@ def get_start_iters(start_iter, dataset_size):
     start_iter  = (start_iter + 1) %  dataset_size
     return start_epoch, start_iter
 
-def labelcolormap(image):
+
+def Colorize(tens):
     cmap = np.array([(0, 0, 0), (180, 90, 90), (60, 120, 180), (30, 90, 250), (40, 120, 80), (111, 74, 0), (81, 0, 81),
                      (128, 64, 128), (244, 35, 232), (250, 170, 160), (230, 150, 140), (70, 70, 70), (102, 102, 156),
-                     (190, 153, 153), (180, 165, 180), (150, 100, 100), (150, 120, 90), (153, 153, 153), (153, 153, 153),
+                     (190, 153, 153), (180, 165, 180), (150, 100, 100), (150, 120, 90), (153, 153, 153),
+                     (153, 153, 153),
                      (250, 170, 30), (220, 220, 0), (107, 142, 35), (152, 251, 152), (70, 130, 180), (220, 20, 60),
-                     (255, 0, 0), (0, 0, 142), (0, 0, 70),(0, 60, 100), (0, 0, 90), (0, 0, 110), (0, 80, 100),
+                     (255, 0, 0), (0, 0, 142), (0, 0, 70), (0, 60, 100), (0, 0, 90), (0, 0, 110), (0, 80, 100),
                      (0, 0, 230), (119, 11, 32), (0, 0, 142), (150, 0, 230), (200, 10, 60)],
                     dtype=np.uint8)
-    colored_image = np.zeros((256, 256, 3), dtype=np.uint8)
-    for class_index, color in enumerate(cmap):
-        mask = image == class_index
-        colored_image[mask] = color
+    cmap = torch.from_numpy(cmap[:37])
+    size = tens.size()
+    color_image = torch.ByteTensor(3, size[1], size[2]).fill_(0)
+    tens = torch.argmax(tens, dim=0, keepdim=True)
 
-    return colored_image
+    for label in range(0, len(cmap)):
+        mask = (label == tens[0]).cpu()
+        color_image[0][mask] = cmap[label][0]
+        color_image[1][mask] = cmap[label][1]
+        color_image[2][mask] = cmap[label][2]
+    return color_image
 class results_saver():
     def __init__(self, opt):
         path = os.path.join(opt.results_dir, opt.name, opt.ckpt_iter)
@@ -240,10 +247,7 @@ class image_saver():
             model.eval()
             pred = model(image)
             pred = F.softmax(pred, dim=1)
-            pred = pred.cpu().numpy()
-            pred = np.argmax(pred, axis=2)  # 获取每个像素的类别索引
-            pred = pred.astype(np.uint8)
-            pred = labelcolormap(pred)
+            pred = Colorize(pred)
 
             self.save_images(pred, "segmentation", cur_iter)
 
@@ -304,19 +308,7 @@ def GreyScale(tens, num_cl):
         color_image[2][mask] = label
     return color_image
 
-def Colorize(tens, num_cl):
-    cmap = labelcolormap(num_cl)
-    cmap = torch.from_numpy(cmap[:num_cl])
-    size = tens.size()
-    color_image = torch.ByteTensor(3, size[1], size[2]).fill_(0)
-    tens = torch.argmax(tens, dim=0, keepdim=True)
 
-    for label in range(0, len(cmap)):
-        mask = (label == tens[0]).cpu()
-        color_image[0][mask] = cmap[label][0]
-        color_image[1][mask] = cmap[label][1]
-        color_image[2][mask] = cmap[label][2]
-    return color_image
 
 
 

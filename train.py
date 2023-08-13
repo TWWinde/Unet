@@ -15,7 +15,7 @@ opt = config.read_arguments(train=True)
 print("nb of gpus: ", torch.cuda.device_count())
 model = UNet(opt, num_classes=37, in_channels=1)
 model.to('cuda')
-dataloader, dataloader_supervised, dataloader_val = dataloaders.get_dataloaders(opt)
+dataloader, dataloader_val = dataloaders.get_dataloaders(opt)
 im_saver = utils.image_saver(opt)
 
 dice_loss = SoftDiceLoss(batch_dice=True)  # Softmax for DICE Loss!

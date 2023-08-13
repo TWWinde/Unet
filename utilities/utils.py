@@ -94,28 +94,8 @@ class timer():
 
 class losses_saver():
     def __init__(self, opt):
-        if opt.model_supervision == 2:
-            self.name_list = ["Generator", "Vgg", "D_fake", "D_real", "LabelMix"]
-        elif opt.model_supervision ==1:
-            self.name_list = ["sup_G_Du",
-                              "sup_G_D",
-                              "sup_VGG",
-                              "sup_G_feat_match",
-                              "sup_D_fake",
-                              "sup_D_real",
-                              "sup_D_LM",
-                              "sup_Du_fake",
-                              "sup_Du_real",
-                              "un_G_D",
-                              "un_VGG",
-                              "un_G_Du",
-                              "un_edge",
-                              "un_Du_fake",
-                              "un_Du_real",
-                              "un_Du_regularize",
-                              "sup_Du_regularize"]
-        else:
-            self.name_list = ["Generator", "Vgg", "GAN","edge",'featMatch',"D_fake", "D_real", "LabelMix","Du_fake","Du_real","Du_regularize"]
+
+        self.name_list = ["Generator", "Vgg", "GAN","edge",'featMatch',"D_fake", "D_real", "LabelMix","Du_fake","Du_real","Du_regularize"]
         self.opt = opt
         self.freq_smooth_loss = opt.freq_smooth_loss
         self.freq_save_loss = opt.freq_save_loss

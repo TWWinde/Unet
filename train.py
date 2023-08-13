@@ -1,3 +1,4 @@
+import os
 import random
 import numpy as np
 import torch
@@ -90,8 +91,8 @@ for epoch in range(start_epoch, opt.num_epochs):
             print('Steps: {0} Training Loss: {1:.4f}'.format(i, loss))
 
         if cur_iter % opt.freq_save_latest == 0:
-            utils.save_networks(opt, cur_iter, model, latest=True)
-        visualizer_losses(cur_iter, loss)
+            torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model.tar"))
+        #visualizer_losses(cur_iter, loss)
 
         if cur_iter % opt.freq_print == 0:
             im_saver.visualize_batch(model, image, label, cur_iter)
@@ -99,8 +100,8 @@ for epoch in range(start_epoch, opt.num_epochs):
         validate(model, dataloader_val, epoch)
 
 
-utils.save_networks(opt, cur_iter, model)
-utils.save_networks(opt, cur_iter, model, latest=True)
+torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model.tar"))
+
 print("The training has successfully finished")
 
 

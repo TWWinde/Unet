@@ -221,19 +221,13 @@ class image_saver():
         os.makedirs(self.path, exist_ok=True)
 
     def visualize_batch(self, model, image, label, cur_iter):
-        self.save_images(label, "label", cur_iter, is_label=True)
-        self.save_images(image, "real", cur_iter)
-        edges = model.module.compute_edges(image)
+        self.save_images(label, "groundtruth", cur_iter, is_label=True)
+        self.save_images(image, "image", cur_iter)
         with torch.no_grad():
             model.eval()
-            fake = model.module.netG(label,edges=edges)
-            self.save_images(fake, "fake", cur_iter)
-            model.train()
-            if not self.opt.no_EMA:
-                model.eval()
-                fake = model.module.netEMA(label,edges=edges)
-                self.save_images(fake, "fake_ema", cur_iter)
-                model.train()
+            pre = model(image)
+            self.save_images(pre, "segmentation", cur_iter)
+
 
     def save_images(self, batch, name, cur_iter, is_label=False):
         fig = plt.figure()

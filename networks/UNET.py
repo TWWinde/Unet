@@ -21,7 +21,7 @@ import torch.nn as nn
 
 class UNet(nn.Module):
 
-    def __init__(self, opt, num_classes, in_channels=1, initial_filter_size=64, kernel_size=3, do_instancenorm=True):
+    def __init__(self, opt, num_classes, in_channels=3, initial_filter_size=64, kernel_size=3, do_instancenorm=True):
         super().__init__()
         self.opt = opt
         self.contr_1_1 = self.contract(in_channels, initial_filter_size, kernel_size, instancenorm=do_instancenorm)

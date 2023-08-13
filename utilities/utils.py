@@ -240,6 +240,7 @@ class image_saver():
             model.eval()
             pred = model(image)
             pred = F.softmax(pred, dim=1)
+            pred = pred.cpu()
             pred = np.argmax(pred, axis=2)  # 获取每个像素的类别索引
             pred = pred.astype(np.uint8)
             pred = labelcolormap(pred)

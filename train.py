@@ -100,7 +100,7 @@ for epoch in range(start_epoch, opt.num_epochs):
         validate(model, dataloader_val, epoch)
 
 
-torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model.tar"))
+torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model_final.tar"))
 
 print("The training has successfully finished")
 

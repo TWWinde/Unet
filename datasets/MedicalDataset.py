@@ -67,5 +67,5 @@ class MedicalDataset(torch.utils.data.Dataset):
         image = TR.functional.to_tensor(image)
         label = TR.functional.to_tensor(label)
         # normalize
-        image = TR.functional.normalize(image, (0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        image = image / 255.0                      #TR.functional.normalize(image, (0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         return image, label

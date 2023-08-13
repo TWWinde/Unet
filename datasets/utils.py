@@ -7,7 +7,7 @@ def preprocess_input(opt, data):
         data['image'] = data['image'].cuda()
     label_map = data['label']
     bs, _, h, w = label_map.size()
-    nc = opt.semantic_nc
+    nc = 37
     if opt.gpu_ids != "-1":
         input_label = torch.cuda.FloatTensor(bs, nc, h, w).zero_()
     else:

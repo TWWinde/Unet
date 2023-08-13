@@ -61,7 +61,7 @@ def Colorize(tens, num_cl):
     print(tens.size())
 
     for label in range(0, len(cmap)):
-        mask = (label == tens[0]).cpu()
+        mask = (label == tens[1]).cpu()
         color_image[0][mask] = cmap[label][0]
         color_image[1][mask] = cmap[label][1]
         color_image[2][mask] = cmap[label][2]

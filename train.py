@@ -95,7 +95,8 @@ for epoch in range(start_epoch, opt.num_epochs):
         #visualizer_losses(cur_iter, loss)
 
         if cur_iter % opt.freq_print == 0:
-            im_saver.visualize_batch(model, image, label, cur_iter)
+            pass
+           # im_saver.visualize_batch(model, image, label, cur_iter)
 
         validate(model, dataloader_val, epoch)
 

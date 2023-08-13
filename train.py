@@ -98,7 +98,7 @@ for epoch in range(start_epoch, opt.num_epochs):
             pass
            # im_saver.visualize_batch(model, image, label, cur_iter)
 
-        validate(model, dataloader_val, epoch)
+        # validate(model, dataloader_val, epoch)
 
 
 torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model_final.tar"))

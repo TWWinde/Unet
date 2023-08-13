@@ -20,6 +20,7 @@ class MedicalDataset(torch.utils.data.Dataset):
         opt.aspect_ratio = 1.0
 
         self.opt = opt
+        self.for_metrics = for_metrics
         self.images, self.labels = self.list_images()
 
     def __len__(self, ):

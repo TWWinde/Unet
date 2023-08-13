@@ -12,7 +12,7 @@ def get_dataloaders(opt):
 
     file = __import__("datasets."+dataset_name)
     dataset_train = file.__dict__[dataset_name].__dict__[dataset_name](opt, for_metrics=False)
-    dataset_val   = file.__dict__[dataset_name].__dict__[dataset_name](opt, for_metrics=True)
+    dataset_val = file.__dict__[dataset_name].__dict__[dataset_name](opt, for_metrics=True)
     print("Created %s, size train: %d, size val: %d" % (dataset_name, len(dataset_train), len(dataset_val)))
 
     dataloader_train = torch.utils.data.DataLoader(dataset_train, batch_size = opt.batch_size, shuffle = True, drop_last=True)

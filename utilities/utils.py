@@ -28,13 +28,13 @@ def get_start_iters(start_iter, dataset_size):
 def labelcolormap(N):
     if N == 37:
         cmap = np.array(
-            [(0, 0, 0), (180, 90, 90), (60, 120, 180), (30, 90, 250), (40, 120, 80), (111, 74, 0), (81, 0, 81),
-             (128, 64, 128), (244, 35, 232), (250, 170, 160), (230, 150, 140), (70, 70, 70), (102, 102, 156),
-             (190, 153, 153), (180, 165, 180), (150, 100, 100), (150, 120, 90), (153, 153, 153),
-             (153, 153, 153),
-             (250, 170, 30), (220, 220, 0), (107, 142, 35), (152, 251, 152), (70, 130, 180), (220, 20, 60),
-             (255, 0, 0), (0, 0, 142), (0, 0, 70), (0, 60, 100), (0, 0, 90), (0, 0, 110), (0, 80, 100),
-             (0, 0, 230), (119, 11, 32), (0, 0, 142), (150, 0, 230), (200, 10, 60)],
+            [ (0, 0, 0), (180, 90, 90), (60, 120, 180), (30, 90, 250), (40, 120, 80),
+        (111, 74, 0), (81, 0, 81), (128, 64, 128), (244, 35, 232), (250, 170, 160),
+        (230, 150, 140), (70, 70, 70), (102, 102, 156), (190, 153, 153), (180, 165, 180),
+        (150, 100, 100), (150, 120, 90), (153, 153, 153), (153, 153, 153), (250, 170, 30),
+        (220, 220, 0), (107, 142, 35), (152, 251, 152), (70, 130, 180), (220, 20, 60),
+        (255, 0, 0), (0, 0, 142), (0, 0, 70), (0, 60, 100), (0, 0, 90), (0, 0, 110),
+        (0, 80, 100), (0, 0, 230), (119, 11, 32), (0, 0, 142), (150, 0, 230), (200, 10, 60)],
             dtype=np.uint8)
     else:
         cmap = np.zeros((N, 3), dtype=np.uint8)
@@ -53,43 +53,15 @@ def labelcolormap(N):
     return cmap
 
 
-def colorize_segmentation(segmentation, num_classes):
-    cmap = np.array([
-        (0, 0, 0), (180, 90, 90), (60, 120, 180), (30, 90, 250), (40, 120, 80),
-        (111, 74, 0), (81, 0, 81), (128, 64, 128), (244, 35, 232), (250, 170, 160),
-        (230, 150, 140), (70, 70, 70), (102, 102, 156), (190, 153, 153), (180, 165, 180),
-        (150, 100, 100), (150, 120, 90), (153, 153, 153), (153, 153, 153), (250, 170, 30),
-        (220, 220, 0), (107, 142, 35), (152, 251, 152), (70, 130, 180), (220, 20, 60),
-        (255, 0, 0), (0, 0, 142), (0, 0, 70), (0, 60, 100), (0, 0, 90), (0, 0, 110),
-        (0, 80, 100), (0, 0, 230), (119, 11, 32), (0, 0, 142), (150, 0, 230), (200, 10, 60)
-    ], dtype=np.uint8)
-
-    cmap = torch.from_numpy(cmap[:num_classes])
-    size = segmentation.size()
-    color_images = []
-    segmentation = torch.argmax(segmentation, dim=1, keepdim=False)
-
-    for batch_idx in range(size[0]):
-        color_image = torch.ByteTensor(3, size[2], size[3]).fill_(0)
-        for label in range(num_classes):
-            mask = (label == segmentation[batch_idx]).cpu()  # segmentation[batch_idx] (256, 256)
-            color_image[0][mask] = cmap[label][0]
-            color_image[1][mask] = cmap[label][1]
-            color_image[2][mask] = cmap[label][2]
-        color_images.append(color_image)
-
-    return torch.stack(color_images)
 def Colorize(tens, num_cl):
     cmap = labelcolormap(num_cl)
     cmap = torch.from_numpy(cmap[:num_cl])
     size = tens.size()
-    print(size)
     color_image = torch.ByteTensor(3, size[1], size[2]).fill_(0)
-    tens = torch.argmax(tens, dim=1, keepdim=True)
-    print(tens.size())
+    tens = torch.argmax(tens, dim=0, keepdim=True)
 
     for label in range(0, len(cmap)):
-        mask = (label == tens).cpu()
+        mask = (label == tens[0]).cpu()
         color_image[0][mask] = cmap[label][0]
         color_image[1][mask] = cmap[label][1]
         color_image[2][mask] = cmap[label][2]
@@ -224,25 +196,23 @@ class image_saver():
         self.grid = 5
         self.path = os.path.join(opt.checkpoints_dir, opt.name, "images")+"/"
         self.opt = opt
-        self.num_cl = opt.label_nc + 2
+        self.num_cl = 37
         os.makedirs(self.path, exist_ok=True)
 
     def visualize_batch(self, model, image, label, cur_iter):
-        label = colorize_segmentation(label, 37)
         self.save_images(label, "groundtruth", cur_iter, is_label=True)
         self.save_images(image, "image", cur_iter, is_image=True)
         with torch.no_grad():
             model.eval()
             pred = model(image)
-            seg = colorize_segmentation(pred, 37)
-            self.save_images(seg, "segmentation", cur_iter)
+            self.save_images(pred, "segmentation", cur_iter,is_label=True)
 
 
     def save_images(self, batch, name, cur_iter, is_label=False, is_image = False):
         fig = plt.figure()
         for i in range(min(self.rows * self.cols, len(batch))):
             if is_label:
-                im = tens_to_lab(batch[i], self.num_cl)
+                im = tens_to_lab_color(batch[i], self.num_cl)
             else:
                 im = tens_to_im(batch[i])
             plt.axis("off")
@@ -272,7 +242,6 @@ def tens_to_lab_color(tens, num_cl):
     label_tensor = Colorize(tens, num_cl)
     label_numpy = np.transpose(label_tensor.numpy(), (1, 2, 0))
     return label_numpy
-
 ###############################################################################
 # Code below from
 # https://github.com/visinf/1-stage-wseg/blob/38130fee2102d3a140f74a45eec46063fcbeaaf8/datasets/utils.py

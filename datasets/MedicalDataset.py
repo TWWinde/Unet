@@ -27,7 +27,7 @@ class MedicalDataset(torch.utils.data.Dataset):
         return len(self.images)
 
     def __getitem__(self, idx):
-        image = Image.open(self.images[idx]) #self.mixed_index[idx]
+        image = Image.open(self.images[idx])
         image = image.convert('L')
         label = Image.open(self.labels[idx])
         image, label = self.transforms(image, label)

@@ -175,11 +175,7 @@ class losses_saver():
         self.path = os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses")
         self.is_first = True
         os.makedirs(self.path, exist_ok=True)
-        for name in self.name_list:
-            if opt.continue_train:
-                self.losses[name] = np.load(self.path+"/losses.npy", allow_pickle = True).item()[name]
-            else:
-                self.losses[name] = list()
+
 
     def __call__(self, epoch, losses):
         for i, loss in enumerate(losses):
@@ -203,7 +199,6 @@ class losses_saver():
             plt.plot(n[1:], self.losses[curve][1:])
             plt.ylabel('loss')
             plt.xlabel('epochs')
-
             plt.savefig(os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses", '%s.png' % (curve)),  dpi=600)
             plt.close(fig)
 

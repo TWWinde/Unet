@@ -20,7 +20,7 @@ model = UNet(opt, num_classes=37, in_channels=1)
 model.to('cuda')
 dataloader, dataloader_val = dataloaders.get_dataloaders(opt)
 im_saver = utils.image_saver(opt)
-
+visualizer_losses = utils.losses_saver(opt)
 dice_loss = SoftDiceLoss(batch_dice=True)  # Softmax for DICE Loss!
 ce_loss = torch.nn.CrossEntropyLoss()  # No softmax for CE Loss -> is implemented in torch!
 
@@ -92,7 +92,7 @@ for epoch in range(start_epoch, opt.num_epochs):
 
         # Some logging and plotting
         if (i % opt.freq_plot_loss) == 0:
-            print('Steps: {0} Training Loss: {1:.4f}'.format(i, loss))
+            visualizer_losses(cur_iter, loss)
 
         if cur_iter % opt.freq_save_latest == 0:
             saver.save_checkpoint(cur_iter)

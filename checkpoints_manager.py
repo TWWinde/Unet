@@ -31,14 +31,12 @@ class CheckpointsManager(object):
         fpaths = sorted(fpaths)  # sort by step number
         return fpaths
 
-    def load_last_checkpoint(self, local_rank):
+    def load_last_checkpoint(self):
         available_fpaths = self.all_available_checkpoint_files
         if len(available_fpaths) > 0:
             step_number, fpath = available_fpaths[-1]
-            if local_rank == 0:
-                logging.info('Found weights file: %s' % fpath)
-            loaded_step_number = self.load_checkpoint(step_number, fpath,
-                                                      local_rank)
+            logging.info('Found weights file: %s' % fpath)
+            loaded_step_number = self.load_checkpoint(step_number, fpath)
             return loaded_step_number
         return 0
 

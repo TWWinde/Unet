@@ -7,6 +7,7 @@ def preprocess_input(opt, data):
         data['image'] = data['image'].cuda()
     label_map = data['label']
     print('size of label map',label_map.size())
+    print(data['label'][0])
     bs, _, h, w = label_map.size()
     nc = 37
     if opt.gpu_ids != "-1":

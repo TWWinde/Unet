@@ -63,7 +63,7 @@ class MedicalDataset(torch.utils.data.Dataset):
         # to tensor
         image = np.asarray(image)
         label = np.asarray(label)
-        label = cv2.cvtColor(label, cv2.COLOR_GRAY2BGR)
+        # label = cv2.cvtColor(label, cv2.COLOR_GRAY2BGR)
         image = TR.functional.to_tensor(image)
         label = TR.functional.to_tensor(label)
         # normalize

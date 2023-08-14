@@ -72,8 +72,7 @@ def colorize_segmentation(segmentation, num_classes):
     for batch_idx in range(size[0]):
         color_image = torch.ByteTensor(3, size[2], size[3]).fill_(0)
         for label in range(num_classes):
-            print(segmentation[batch_idx].size())
-            mask = (label == segmentation[batch_idx]).cpu()
+            mask = (label == segmentation[batch_idx]).cpu()  # segmentation[batch_idx] (256, 256)
             color_image[0][mask] = cmap[label][0]
             color_image[1][mask] = cmap[label][1]
             color_image[2][mask] = cmap[label][2]
@@ -216,67 +215,6 @@ class losses_saver():
         plt.legend(loc="upper right")
         plt.savefig(os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses", 'combined.png'), dpi=600)
         plt.close(fig)
-
-
-
-def save_networks(opt, cur_iter, model, latest=False, best=False):
-    path = os.path.join(opt.checkpoints_dir, opt.name, "models")
-    os.makedirs(path, exist_ok=True)
-    if latest:
-        torch.save(model.module.netG.state_dict(), path+'/%s_G.pth' % ("latest"))
-        try:
-            torch.save(model.module.netD.state_dict(), path+'/%s_D.pth' % ("latest"))
-        except:
-            pass
-        try:
-            torch.save(model.module.netDu_image.state_dict(), path + '/%s_Du_image.pth' % ("latest"))
-            torch.save(model.module.netDu_label.state_dict(), path + '/%s_Du_label.pth' % ("latest"))
-        except:
-            pass
-        try:
-            torch.save(model.module.netDu.state_dict(), path + '/%s_Du.pth' % ("latest"))
-        except:
-            pass
-        if not opt.no_EMA:
-            torch.save(model.module.netEMA.state_dict(), path+'/%s_EMA.pth' % ("latest"))
-        with open(os.path.join(opt.checkpoints_dir, opt.name)+"/latest_iter.txt", "w") as f:
-            f.write(str(cur_iter))
-    elif best:
-        torch.save(model.module.netG.state_dict(), path+'/%s_G.pth' % ("best"))
-        try:
-            torch.save(model.module.netD.state_dict(), path+'/%s_D.pth' % ("best"))
-        except:
-            pass
-        try:
-            torch.save(model.module.netDu_image.state_dict(), path + '/%s_Du_image.pth' % ("best"))
-            torch.save(model.module.netDu_label.state_dict(), path + '/%s_Du_label.pth' % ("best"))
-        except:
-            pass
-        try:
-            torch.save(model.module.netDu.state_dict(), path + '/%s_Du.pth' % ("best"))
-        except:
-            pass
-        if not opt.no_EMA:
-            torch.save(model.module.netEMA.state_dict(), path+'/%s_EMA.pth' % ("best"))
-        with open(os.path.join(opt.checkpoints_dir, opt.name)+"/best_iter.txt", "w") as f:
-            f.write(str(cur_iter))
-    else:
-        torch.save(model.module.netG.state_dict(), path+'/%d_G.pth' % (cur_iter))
-        try:
-            torch.save(model.module.netD.state_dict(), path+'/%d_D.pth' % (cur_iter))
-        except:
-            pass
-        try:
-            torch.save(model.module.netDu_image.state_dict(), path+'/%d_Du_image.pth' % (cur_iter))
-            torch.save(model.module.netDu_label.state_dict(), path+'/%d_Du_label.pth' % (cur_iter))
-        except:
-            pass
-        try:
-            torch.save(model.module.netDu.state_dict(), path + '/%d_Du.pth' % (cur_iter))
-        except:
-            pass
-        if not opt.no_EMA:
-            torch.save(model.module.netEMA.state_dict(), path+'/%d_EMA.pth' % (cur_iter))
 
 
 class image_saver():

@@ -161,6 +161,25 @@ class timer():
         print('[epoch %d/%d - iter %d], time:%.3f' % (epoch, self.num_epochs, cur_iter, avg))
         return avg
 
+class LossRecorder:
+    def __init__(self, opt):
+        self.losses = []
+        self.opt = opt
+
+    def append(self, loss):
+        self.losses.append(loss)
+
+    def plot(self):
+        plt.figure()
+        plt.plot(self.losses, label='Training Loss')
+        plt.xlabel('Iteration')
+        plt.ylabel('Loss')
+        plt.title('Training Loss Over Iterations')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses", '.png' ), dpi=600)
+        plt.close()
+
 
 class losses_saver():
     def __init__(self, opt):

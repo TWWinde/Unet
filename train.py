@@ -13,6 +13,7 @@ from datasets import dataloaders
 from networks.UNET import UNet
 from loss_functions.dice_loss import SoftDiceLoss
 import config
+from utilities.utils import LossRecorder
 
 opt = config.read_arguments(train=True)
 print("nb of gpus: ", torch.cuda.device_count())
@@ -26,7 +27,7 @@ ce_loss = torch.nn.CrossEntropyLoss()  # No softmax for CE Loss -> is implemente
 
 optimizer = optim.Adam(model.parameters(), lr=opt.lr)
 scheduler = ReduceLROnPlateau(optimizer, 'min')
-visualizer_losses = utils.losses_saver(opt)
+loss_recorder = LossRecorder(opt)
 
 print('===============================TRAIN===============================')
 model.train()
@@ -89,10 +90,11 @@ for epoch in range(start_epoch, opt.num_epochs):
         loss = dice_loss(pred_softmax, label.squeeze()) + ce_loss(pred, label.squeeze())
         loss.backward()
         optimizer.step()
+        loss_recorder.append(loss.item())
 
         # Some logging and plotting
         if (i % opt.freq_plot_loss) == 0:
-            visualizer_losses(cur_iter, loss)
+            loss_recorder.plot()
 
         if cur_iter % opt.freq_save_latest == 0:
             saver.save_checkpoint(cur_iter)

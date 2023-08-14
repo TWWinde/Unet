@@ -67,7 +67,7 @@ def colorize_segmentation(segmentation, num_classes):
     cmap = torch.from_numpy(cmap[:num_classes])
     size = segmentation.size()
     color_image = torch.ByteTensor(3, size[1], size[2]).fill_(0)
-    segmentation = torch.argmax(segmentation, dim=1, keepdim=True)
+    segmentation = torch.argmax(segmentation, dim=1)
 
     for label in range(num_classes):
         mask = (label == segmentation).cpu()

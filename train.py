@@ -49,6 +49,7 @@ start_epoch = int(initial_step / (len(dataloader.dataset) / opt.batch_size))
 
 #start_epoch, start_iter = utils.get_start_iters(opt.loaded_latest_iter, len(dataloader))
 num_training_steps = int(opt.num_epochs * len(dataloader.dataset) / opt.batch_size)
+print('total training steps:', num_training_steps)
 
 def validate(model, dataloader, Epoch):
     model.eval()
@@ -102,7 +103,6 @@ for epoch in range(start_epoch, opt.num_epochs):
             im_saver.visualize_batch(model, image, label, cur_iter)
 
         # validate(model, dataloader_val, epoch)
-
 
 torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model_final.tar"))
 

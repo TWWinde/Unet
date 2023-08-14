@@ -51,6 +51,31 @@ def labelcolormap(N):
             cmap[i, 1] = g
             cmap[i, 2] = b
     return cmap
+
+
+def colorize_segmentation(segmentation, num_classes):
+    cmap = np.array([
+        (0, 0, 0), (180, 90, 90), (60, 120, 180), (30, 90, 250), (40, 120, 80),
+        (111, 74, 0), (81, 0, 81), (128, 64, 128), (244, 35, 232), (250, 170, 160),
+        (230, 150, 140), (70, 70, 70), (102, 102, 156), (190, 153, 153), (180, 165, 180),
+        (150, 100, 100), (150, 120, 90), (153, 153, 153), (153, 153, 153), (250, 170, 30),
+        (220, 220, 0), (107, 142, 35), (152, 251, 152), (70, 130, 180), (220, 20, 60),
+        (255, 0, 0), (0, 0, 142), (0, 0, 70), (0, 60, 100), (0, 0, 90), (0, 0, 110),
+        (0, 80, 100), (0, 0, 230), (119, 11, 32), (0, 0, 142), (150, 0, 230), (200, 10, 60)
+    ], dtype=np.uint8)
+
+    cmap = torch.from_numpy(cmap[:num_classes])
+    size = segmentation.size()
+    color_image = torch.ByteTensor(3, size[1], size[2]).fill_(0)
+    segmentation = torch.argmax(segmentation, dim=1, keepdim=True)
+
+    for label in range(num_classes):
+        mask = (label == segmentation).cpu()
+        color_image[0][mask] = cmap[label][0]
+        color_image[1][mask] = cmap[label][1]
+        color_image[2][mask] = cmap[label][2]
+
+    return color_image
 def Colorize(tens, num_cl):
     cmap = labelcolormap(num_cl)
     cmap = torch.from_numpy(cmap[:num_cl])
@@ -261,15 +286,14 @@ class image_saver():
         os.makedirs(self.path, exist_ok=True)
 
     def visualize_batch(self, model, image, label, cur_iter):
+        label = colorize_segmentation(label, 37)
         self.save_images(label, "groundtruth", cur_iter, is_label=True)
         self.save_images(image, "image", cur_iter, is_image=True)
         with torch.no_grad():
             model.eval()
             pred = model(image)
-            pred = F.softmax(pred, dim=1)
-            pred = Colorize(pred, 37)
-
-            self.save_images(pred, "segmentation", cur_iter)
+            seg = colorize_segmentation(pred, 37)
+            self.save_images(seg, "segmentation", cur_iter)
 
 
     def save_images(self, batch, name, cur_iter, is_label=False, is_image = False):

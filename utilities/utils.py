@@ -61,7 +61,7 @@ def Colorize(tens, num_cl):
     print(tens.size())
 
     for label in range(0, len(cmap)):
-        mask = (label == tens[1]).cpu()
+        mask = (label == tens).cpu()
         color_image[0][mask] = cmap[label][0]
         color_image[1][mask] = cmap[label][1]
         color_image[2][mask] = cmap[label][2]
@@ -262,7 +262,7 @@ class image_saver():
 
     def visualize_batch(self, model, image, label, cur_iter):
         self.save_images(label, "groundtruth", cur_iter, is_label=True)
-        self.save_images(image, "image", cur_iter)
+        self.save_images(image, "image", cur_iter, is_image=True)
         with torch.no_grad():
             model.eval()
             pred = model(image)
@@ -272,7 +272,7 @@ class image_saver():
             self.save_images(pred, "segmentation", cur_iter)
 
 
-    def save_images(self, batch, name, cur_iter, is_label=False):
+    def save_images(self, batch, name, cur_iter, is_label=False, is_image = False):
         fig = plt.figure()
         for i in range(min(self.rows * self.cols, len(batch))):
             if is_label:
@@ -282,7 +282,10 @@ class image_saver():
             plt.axis("off")
             fig.add_subplot(self.rows, self.cols, i+1)
             plt.axis("off")
-            plt.imshow(im)
+            if is_image:
+                plt.imshow(im,cmap='gray')
+            else:
+                plt.imshow(im)
         fig.tight_layout()
         plt.savefig(self.path+str(cur_iter)+"_"+name)
         plt.close()

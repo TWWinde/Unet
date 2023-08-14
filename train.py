@@ -79,7 +79,7 @@ for epoch in range(start_epoch, opt.num_epochs):
         cur_iter = epoch * len(dataloader) + i
 
         image, label = preprocess_input(opt, data_i)
-        print('Input image size:',image.size(),'Input label size',label.size())
+        # Input image size:[16, 1, 256, 256]. Input label size:[16, 37, 256, 256]
         model.zero_grad()
         optimizer.zero_grad()
 

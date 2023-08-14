@@ -79,14 +79,11 @@ for epoch in range(start_epoch, opt.num_epochs):
         cur_iter = epoch * len(dataloader) + i
 
         image, label = preprocess_input(opt, data_i)
+        print('Input image size:',image.size(),'Input label size',label.size())
         model.zero_grad()
         optimizer.zero_grad()
 
-        # Shape of data_batch = [1, b, c, w, h]
-        # Desired shape = [b, c, w, h]
-        # Move data and target to the GPU
-
-        pred = model(image)
+        pred = model(image)  # ([16, 37, 256, 256])
         pred_softmax = F.softmax(pred,dim=1)
         # We calculate a softmax, because our SoftDiceLoss expects that as an input. The CE-Loss does the softmax internally.
         loss = dice_loss(pred_softmax, label.squeeze()) + ce_loss(pred, label.squeeze())
@@ -99,12 +96,8 @@ for epoch in range(start_epoch, opt.num_epochs):
 
         if cur_iter % opt.freq_save_latest == 0:
             saver.save_checkpoint(cur_iter)
-            torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model.tar"))
-        #visualizer_losses(cur_iter, loss)
-
         if cur_iter % opt.freq_print == 0:
-            pass
-           # im_saver.visualize_batch(model, image, label, cur_iter)
+            im_saver.visualize_batch(model, image, label, cur_iter)
 
         # validate(model, dataloader_val, epoch)
 

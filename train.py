@@ -90,12 +90,12 @@ for epoch in range(start_epoch, opt.num_epochs):
         loss = dice_loss(pred_softmax, label.squeeze()) + ce_loss(pred, label.squeeze())
         loss.backward()
         optimizer.step()
-        loss_recorder.append(loss.item())
+        if (i % 100) == 0:
+            loss_recorder.append(loss.item())
 
         # Some logging and plotting
         if (i % opt.freq_plot_loss) == 0:
             loss_recorder.plot()
-
         if cur_iter % opt.freq_save_latest == 0:
             saver.save_checkpoint(cur_iter)
         if cur_iter % opt.im_saver == 0:

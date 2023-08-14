@@ -40,7 +40,7 @@ def add_all_arguments(parser, train):
         parser.add_argument('--im_saver', type=int, default=2000, help='frequency of showing training results')
         parser.add_argument('--freq_save_ckpt', type=int, default=10000, help='frequency of saving the checkpoints')
         parser.add_argument('--freq_save_latest', type=int, default=10000, help='frequency of saving the latest model')
-        parser.add_argument('--freq_smooth_loss', type=int, default=10, help='smoothing window for loss visualization')
+        parser.add_argument('--freq_smooth_loss', type=int, default=1000, help='smoothing window for loss visualization')
         parser.add_argument('--freq_plot_loss', type=int, default=200, help='frequency of loss plot updates')
         parser.add_argument('--freq_save_loss', type=int, default=1000, help='frequency of loss save updates')
         parser.add_argument('--freq_fid', type=int, default=2500, help='frequency of saving the fid score (in training iterations)')

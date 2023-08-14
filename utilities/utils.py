@@ -172,12 +172,12 @@ class LossRecorder:
     def plot(self):
         plt.figure()
         plt.plot(self.losses, label='Training Loss')
-        plt.xlabel('Iteration')
+        plt.xlabel('Iteration / 100')
         plt.ylabel('Loss')
         plt.title('Training Loss Over Iterations')
         plt.legend()
         plt.grid(True)
-        plt.savefig(os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses", '.png' ), dpi=600)
+        plt.savefig(os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses", 'loss' ), dpi=600)
         plt.close()
 
 

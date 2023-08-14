@@ -42,7 +42,7 @@ def loopy_iter(dataset):
 cur_iter = 0
 already_started = True
 saver = CheckpointsManager(model, opt.checkpoints_dir)
-initial_step = saver.load_last_checkpoint(opt.checkpoints_dir)
+initial_step = saver.load_last_checkpoint()
 
 start_epoch = int(initial_step / (len(dataloader.dataset) / opt.batch_size))
 

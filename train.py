@@ -96,7 +96,7 @@ for epoch in range(start_epoch, opt.num_epochs):
 
         if cur_iter % opt.freq_save_latest == 0:
             saver.save_checkpoint(cur_iter)
-        if cur_iter % opt.freq_print == 0:
+        if cur_iter % opt.im_saver == 0:
             im_saver.visualize_batch(model, image, label, cur_iter)
 
         # validate(model, dataloader_val, epoch)

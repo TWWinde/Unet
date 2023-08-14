@@ -27,15 +27,45 @@ def get_start_iters(start_iter, dataset_size):
 
 def labelcolormap(N):
     if N == 37:
-        cmap = np.array(
-            [ (0, 0, 0), (180, 90, 90), (60, 120, 180), (30, 90, 250), (40, 120, 80),
-        (111, 74, 0), (81, 0, 81), (128, 64, 128), (244, 35, 232), (250, 170, 160),
-        (230, 150, 140), (70, 70, 70), (102, 102, 156), (190, 153, 153), (180, 165, 180),
-        (150, 100, 100), (150, 120, 90), (153, 153, 153), (153, 153, 153), (250, 170, 30),
-        (220, 220, 0), (107, 142, 35), (152, 251, 152), (70, 130, 180), (220, 20, 60),
-        (255, 0, 0), (0, 0, 142), (0, 0, 70), (0, 60, 100), (0, 0, 90), (0, 0, 110),
-        (0, 80, 100), (0, 0, 230), (119, 11, 32), (0, 0, 142), (150, 0, 230), (200, 10, 60)],
-            dtype=np.uint8)
+        cmap = np.array([
+            [0, 0, 0],  # 0 - Background
+            [255, 0, 0],  # 1 - Class 1 (Red)
+            [0, 255, 0],  # 2 - Class 2 (Green)
+            [0, 0, 255],  # 3 - Class 3 (Blue)
+            [255, 255, 0],  # 4 - Class 4 (Yellow)
+            [0, 255, 255],  # 5 - Class 5 (Cyan)
+            [255, 0, 255],  # 6 - Class 6 (Magenta)
+            [255, 128, 0],  # 7 - Class 7 (Orange)
+            [128, 0, 255],  # 8 - Class 8 (Purple)
+            [0, 255, 128],  # 9 - Class 9 (Lime)
+            [128, 255, 0],  # 10 - Class 10 (Chartreuse)
+            [0, 128, 255],  # 11 - Class 11 (Sky Blue)
+            [255, 0, 128],  # 12 - Class 12 (Rose)
+            [128, 255, 255],  # 13 - Class 13 (Aquamarine)
+            [255, 128, 255],  # 14 - Class 14 (Violet)
+            [255, 255, 128],  # 15 - Class 15 (Light Yellow)
+            [128, 128, 128],  # 16 - Class 16 (Gray)
+            [192, 192, 192],  # 17 - Class 17 (Silver)
+            [255, 128, 128],  # 18 - Class 18 (Light Red)
+            [128, 255, 128],  # 19 - Class 19 (Light Green)
+            [128, 128, 255],  # 20 - Class 20 (Light Blue)
+            [255, 255, 0],  # 21 - Class 21 (Light Yellow)
+            [0, 255, 255],  # 22 - Class 22 (Light Cyan)
+            [255, 0, 255],  # 23 - Class 23 (Light Magenta)
+            [255, 128, 0],  # 24 - Class 24 (Light Orange)
+            [128, 0, 255],  # 25 - Class 25 (Light Purple)
+            [0, 255, 128],  # 26 - Class 26 (Light Lime)
+            [128, 255, 0],  # 27 - Class 27 (Light Chartreuse)
+            [0, 128, 255],  # 28 - Class 28 (Light Sky Blue)
+            [255, 0, 128],  # 29 - Class 29 (Light Rose)
+            [128, 255, 255],  # 30 - Class 30 (Light Aquamarine)
+            [255, 128, 255],  # 31 - Class 31 (Light Violet)
+            [255, 255, 128],  # 32 - Class 32 (Pale Yellow)
+            [192, 192, 192],  # 33 - Class 33 (Pale Silver)
+            [255, 128, 128],  # 34 - Class 34 (Pale Red)
+            [128, 255, 128],  # 35 - Class 35 (Pale Green)
+            [128, 128, 255],  # 36 - Class 36 (Pale Blue)
+        ], dtype=np.uint8)
     else:
         cmap = np.zeros((N, 3), dtype=np.uint8)
         for i in range(N):

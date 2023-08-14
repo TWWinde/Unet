@@ -180,7 +180,6 @@ class losses_saver():
     def __call__(self, epoch, loss):
         self.loss.append(loss)
         self.plot_losses()
-        np.save(os.path.join(self.opt.checkpoints_dir, self.opt.name, "loss", "loss"), self.loss)
 
     def plot_losses(self):
         fig, ax = plt.subplots(1)

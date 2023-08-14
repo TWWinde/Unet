@@ -5,6 +5,8 @@ import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torch.nn.functional as F
+
+from checkpoints_manager import CheckpointsManager
 from datasets.utils import preprocess_input
 from utilities import utils
 from datasets import dataloaders
@@ -30,6 +32,7 @@ print('===============================TRAIN===============================')
 model.train()
 
 
+
 def loopy_iter(dataset):
     while True:
         for item in dataset:
@@ -37,10 +40,14 @@ def loopy_iter(dataset):
 
 
 cur_iter = 0
+already_started = True
+saver = CheckpointsManager(model, opt.checkpoints_dir)
+initial_step = saver.load_last_checkpoint(opt.checkpoints_dir)
 
-already_started = False
-start_epoch, start_iter = utils.get_start_iters(opt.loaded_latest_iter, len(dataloader))
+start_epoch = int(initial_step / (len(dataloader.dataset) / opt.batch_size))
 
+#start_epoch, start_iter = utils.get_start_iters(opt.loaded_latest_iter, len(dataloader))
+num_training_steps = int(opt.num_epochs * len(dataloader.dataset) / opt.batch_size)
 
 def validate(model, dataloader, Epoch):
     model.eval()
@@ -91,6 +98,7 @@ for epoch in range(start_epoch, opt.num_epochs):
             print('Steps: {0} Training Loss: {1:.4f}'.format(i, loss))
 
         if cur_iter % opt.freq_save_latest == 0:
+            saver.save_checkpoint(cur_iter)
             torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model.tar"))
         #visualizer_losses(cur_iter, loss)
 

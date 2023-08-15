@@ -304,10 +304,10 @@ def save_accuracy_to_txt(class_accuracy, filepath):
             f.write(f"Class {class_idx}: {accuracy:.2%}\n")
 
 
-def save_predictions_class_distirbution_to_txt(class_counts, filepath):
+def save_class_counts_to_txt(pre_counts, label_counts, filepath):
     with open(filepath, 'w') as f:
-        for class_idx, counts in enumerate(class_counts):
-            f.write(f"Class {class_idx}: {counts}\n")
+        for class_idx, (counts, count) in enumerate(pre_counts,label_counts ):
+            f.write(f"Class {class_idx}: {counts}  {count} \n")
 
 
 def check_accuracy(loader, model, opt, device="cuda"):
@@ -316,19 +316,25 @@ def check_accuracy(loader, model, opt, device="cuda"):
     class_total = torch.zeros(opt.num_classes, dtype=torch.float).to(device)
     class_pred = torch.zeros(opt.num_classes, dtype=torch.float).to(device)
     with torch.no_grad():
-        for data in loader:
-            image, label = data
-            label = label.to(device)
-            image = image.to(device)
+        for index, data in enumerate(loader):
+            image, label = preprocess_input(opt, data)
+            label = torch.argmax(label, dim=1, keepdim=True)
             preds = torch.argmax(model(image), dim=1, keepdim=True)
+            flattened_labels = label.view(-1)
             flattened_preds = preds.view(-1)
-            class_counts = torch.bincount(flattened_preds, minlength=opt.num_classes)
+            class_counts_preds = torch.bincount(flattened_preds, minlength=opt.num_classes)
+            class_counts_labels = torch.bincount(flattened_labels, minlength=opt.num_classes)
             correct = preds.eq(label.view_as(preds))
             for i in range(opt.num_classes):
                 class_pred[i] += preds[label == i].sum().item()
                 class_correct[i] += correct[label == i].sum().item()
                 class_total[i] += (label == i).sum().item()
+            if index == 100:
+                break
     class_accuracy = class_correct / class_total
     save_accuracy_to_txt(class_accuracy, os.path.join(opt.checkpoints_dir, 'class_accuracy.txt'))
-    save_predictions_class_distirbution_to_txt(class_counts, os.path.join(opt.checkpoints_dir, 'pred_class_counts.txt'))
+    save_class_counts_to_txt(class_counts_preds, class_counts_labels, os.path.join(opt.checkpoints_dir, 'class_counts.txt'))
+
+
+
     model.train()

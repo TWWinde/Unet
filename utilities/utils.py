@@ -329,7 +329,7 @@ def check_accuracy(loader, model, opt, device="cuda"):
                 class_pred[i] += preds[label == i].sum().item()
                 class_correct[i] += correct[label == i].sum().item()
                 class_total[i] += (label == i).sum().item()
-            if index == 100:
+            if index == 500:
                 break
     class_accuracy = class_correct / class_total
     save_accuracy_to_txt(class_accuracy, os.path.join(opt.checkpoints_dir, 'class_accuracy.txt'))

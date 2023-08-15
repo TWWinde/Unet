@@ -42,22 +42,17 @@ def train_fn(loader, model, optimizer, opt, cur_step):
 
         # forward
         predictions = model(image)
-        pred_bg = predictions[:, 0, :, :]
-        pred_nobg = predictions[:, 1:, :, :]
-        label_bg = label[:, 0, :, :]
-        label_nobg = label[:, 1:, :, :]
-        loss_bg = loss_calculation(pred_bg, label_bg)
-        loss_tissure = loss_calculation(pred_nobg, label_nobg)
-        loss = 0.01*loss_bg + loss_tissure
+        loss = loss_calculation(predictions, label)
 
 
         # backward
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if cur_step % 2000 == 0:
+        if cur_step % 20 == 0:
             im_saver.visualize_batch(model, image, label, cur_step)
             loss_recorder.append(loss)
+            break
 
 
 

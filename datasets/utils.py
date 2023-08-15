@@ -1,5 +1,6 @@
 import torch
 
+
 def preprocess_input(opt, data):
     data['label'] = data['label'].long()
     if opt.gpu_ids != "-1":

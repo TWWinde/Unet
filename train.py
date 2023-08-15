@@ -13,102 +13,70 @@ from datasets import dataloaders
 from networks.UNET import UNet
 from loss_functions.dice_loss import SoftDiceLoss
 import config
-from utilities.utils import LossRecorder
+from utilities.utils import LossRecorder, check_accuracy
 
 opt = config.read_arguments(train=True)
 print("nb of gpus: ", torch.cuda.device_count())
-model = UNet(opt, num_classes=37, in_channels=1)
-model.to('cuda')
-dataloader, dataloader_val = dataloaders.get_dataloaders(opt)
+cur_step = 0
+already_started = True
 im_saver = utils.image_saver(opt)
 visualizer_losses = utils.losses_saver(opt)
-dice_loss = SoftDiceLoss(batch_dice=True)  # Softmax for DICE Loss!
-ce_loss = torch.nn.CrossEntropyLoss()  # No softmax for CE Loss -> is implemented in torch!
-
-optimizer = optim.Adam(model.parameters(), lr=opt.lr)
-scheduler = ReduceLROnPlateau(optimizer, 'min')
 loss_recorder = LossRecorder(opt)
 
-print('===============================TRAIN===============================')
-model.train()
+
+def loss_calculation(pred, label):
+    dice_loss = SoftDiceLoss(batch_dice=True)  # Softmax for DICE Loss!
+    ce_loss = torch.nn.CrossEntropyLoss()  # No softmax for CE Loss -> is implemented in torch!
+    pred_softmax = F.softmax(pred, dim=1)
+    loss = dice_loss(pred_softmax, label) + ce_loss(pred, label)
+
+    return loss
 
 
-
-def loopy_iter(dataset):
-    while True:
-        for item in dataset:
-            yield item
-
-
-cur_iter = 0
-already_started = True
-saver = CheckpointsManager(model, opt.checkpoints_dir)
-initial_step = saver.load_last_checkpoint()
-
-start_epoch = int(initial_step / (len(dataloader.dataset) / opt.batch_size))
-
-#start_epoch, start_iter = utils.get_start_iters(opt.loaded_latest_iter, len(dataloader))
-num_training_steps = int(opt.num_epochs * len(dataloader.dataset) / opt.batch_size)
-print('total training steps:', num_training_steps)
-
-def validate(model, dataloader, Epoch):
-    model.eval()
-    total_loss = 0.0
-    num_samples = 0
-    num_subset_samples = int(len(dataloader.dataset) * 0.1)
-    subset_indices = random.sample(range(len(dataloader.dataset)), num_subset_samples)
-
-    with torch.no_grad():
-        for data in subset_indices:
-            images, labels = preprocess_input(opt, data)
-
-            pred = model(images)
-            loss = dice_loss(pred_softmax, labels.squeeze()) + ce_loss(pred, label.squeeze())
-
-            total_loss += loss.item()
-            num_samples += images.size(0)
-
-        average_loss = total_loss / num_samples
-        print('Epoch: {0} Training Loss: {1:.4f}'.format(Epoch, average_loss))
-
-
-# --- the training loop ---#
-
-
-for epoch in range(start_epoch, opt.num_epochs):
-    for i, data_i in enumerate(dataloader):
-
-        cur_iter = epoch * len(dataloader) + i
-
-        image, label = preprocess_input(opt, data_i)
-        # Input image size:[16, 1, 256, 256]. Input label size:[16, 37, 256, 256]
+def train_fn(loader, model, optimizer, opt):
+    for batch_idx, data in enumerate(loader):
+        image, label = preprocess_input(opt, data)
         model.zero_grad()
         optimizer.zero_grad()
 
-        pred = model(image)  # ([16, 37, 256, 256])
-        pred_softmax = F.softmax(pred,dim=1)
-        # We calculate a softmax, because our SoftDiceLoss expects that as an input. The CE-Loss does the softmax internally.
-        loss = dice_loss(pred_softmax, label.squeeze()) + ce_loss(pred, label.squeeze())
+        # forward
+        predictions = model(image)
+        loss = loss_calculation(predictions, label)
+
+        # backward
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if (i % 100) == 0:
-            loss_recorder.append(loss.item())
-
-        # Some logging and plotting
-        if (i % opt.freq_plot_loss) == 0:
-            loss_recorder.plot()
-        if cur_iter % opt.freq_save_latest == 0:
-            saver.save_checkpoint(cur_iter)
-        if cur_iter % opt.im_saver == 0:
-            im_saver.visualize_batch(model, image, label, cur_iter)
-
-        # validate(model, dataloader_val, epoch)
-
-torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model_final.tar"))
-
-print("The training has successfully finished")
 
 
+def main():
+    # load model
+    model = UNet(opt, num_classes=37, in_channels=1)
+    model.to('cuda')
+    model.train()
+
+    # load data
+    dataloader, dataloader_val = dataloaders.get_dataloaders(opt)
+
+    # load checkpoint
+    saver = CheckpointsManager(model, opt.checkpoints_dir)
+    cur_step = saver.load_last_checkpoint()
+    start_epoch = int(cur_step / (len(dataloader.dataset) / opt.batch_size))
+    num_training_steps = int(opt.num_epochs * len(dataloader.dataset) / opt.batch_size)
+    print('total training steps:', num_training_steps)
+
+    optimizer = optim.Adam(model.parameters(), lr=opt.lr)
+    scheduler = ReduceLROnPlateau(optimizer, 'min')
+
+    for epoch in range(start_epoch, opt.num_epochs):
+        train_fn(dataloader, model, optimizer, opt)
+        cur_step += (len(dataloader.dataset) / opt.batch_size)
+        saver.save_checkpoint(cur_step)
+        check_accuracy(dataloader_val, model, opt, device='cuda')
+
+    torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model_final.tar"))
+    print("The training has successfully finished")
 
 
-
+if '__name__' == '__main__':
+    main()

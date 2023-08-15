@@ -4,11 +4,13 @@ import random
 import time
 import os
 import matplotlib
+
+from datasets.utils import preprocess_input
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from PIL import Image
 import torch.nn.functional as F
-
 
 
 def fix_seed(seed):
@@ -22,8 +24,9 @@ def get_start_iters(start_iter, dataset_size):
     if start_iter == 0:
         return 0, 0
     start_epoch = (start_iter + 1) // dataset_size
-    start_iter  = (start_iter + 1) %  dataset_size
+    start_iter = (start_iter + 1) % dataset_size
     return start_epoch, start_iter
+
 
 def labelcolormap(N):
     if N == 37:
@@ -96,6 +99,8 @@ def Colorize(tens, num_cl):
         color_image[1][mask] = cmap[label][1]
         color_image[2][mask] = cmap[label][2]
     return color_image
+
+
 class results_saver():
     def __init__(self, opt):
         path = os.path.join(opt.results_dir, opt.name, opt.ckpt_iter)
@@ -116,11 +121,12 @@ class results_saver():
 
     def save_im(self, im, mode, name):
         im = Image.fromarray(im.astype(np.uint8))
-        #print(name.split("/")[-1])
+        # print(name.split("/")[-1])
         im.save(os.path.join(self.path_to_save[mode], name.split("/")[-1]).replace('.jpg', '.png'))
 
+
 class results_saver_mid_training():
-    def __init__(self, opt,current_iteration):
+    def __init__(self, opt, current_iteration):
         path = os.path.join(opt.results_dir, opt.name, current_iteration)
         self.path_label = os.path.join(path, "label")
         self.path_image = os.path.join(path, "image")
@@ -140,6 +146,7 @@ class results_saver_mid_training():
     def save_im(self, im, mode, name):
         im = Image.fromarray(im.astype(np.uint8))
         im.save(os.path.join(self.path_to_save[mode], name.split("/")[-1]).replace('.jpg', '.png'))
+
 
 class timer():
     def __init__(self, opt):
@@ -161,6 +168,7 @@ class timer():
         print('[epoch %d/%d - iter %d], time:%.3f' % (epoch, self.num_epochs, cur_iter, avg))
         return avg
 
+
 class LossRecorder:
     def __init__(self, opt):
         self.losses = []
@@ -177,14 +185,14 @@ class LossRecorder:
         plt.title('Training Loss Over Iterations')
         plt.legend()
         plt.grid(True)
-        plt.savefig(os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses", 'loss' ), dpi=600)
+        plt.savefig(os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses", 'loss'), dpi=600)
         plt.close()
 
 
 class losses_saver():
     def __init__(self, opt):
-
-        self.name_list = ["Generator", "Vgg", "GAN","edge",'featMatch',"D_fake", "D_real", "LabelMix","Du_fake","Du_real","Du_regularize"]
+        self.name_list = ["Generator", "Vgg", "GAN", "edge", 'featMatch', "D_fake", "D_real", "LabelMix", "Du_fake",
+                          "Du_real", "Du_regularize"]
         self.opt = opt
         self.freq_smooth_loss = opt.freq_smooth_loss
         self.freq_save_loss = opt.freq_save_loss
@@ -194,7 +202,6 @@ class losses_saver():
         self.path = os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses")
         self.is_first = True
         os.makedirs(self.path, exist_ok=True)
-
 
     def __call__(self, epoch, loss):
         self.loss.append(loss)
@@ -206,9 +213,8 @@ class losses_saver():
         plt.plot(n[1:], self.loss[1:])
         plt.ylabel('loss')
         plt.xlabel('epochs')
-        plt.savefig(os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses", '.png' ), dpi=600)
+        plt.savefig(os.path.join(self.opt.checkpoints_dir, self.opt.name, "losses", '.png'), dpi=600)
         plt.close(fig)
-
 
 
 class image_saver():
@@ -216,7 +222,7 @@ class image_saver():
         self.cols = 4
         self.rows = 3
         self.grid = 5
-        self.path = os.path.join(opt.checkpoints_dir, opt.name, "images")+"/"
+        self.path = os.path.join(opt.checkpoints_dir, opt.name, "images") + "/"
         self.opt = opt
         self.num_cl = 37
         os.makedirs(self.path, exist_ok=True)
@@ -227,10 +233,9 @@ class image_saver():
         with torch.no_grad():
             model.eval()
             pred = model(image)
-            self.save_images(pred, "segmentation", cur_iter,is_label=True)
+            self.save_images(pred, "segmentation", cur_iter, is_label=True)
 
-
-    def save_images(self, batch, name, cur_iter, is_label=False, is_image = False):
+    def save_images(self, batch, name, cur_iter, is_label=False, is_image=False):
         fig = plt.figure()
         for i in range(min(self.rows * self.cols, len(batch))):
             if is_label:
@@ -238,14 +243,14 @@ class image_saver():
             else:
                 im = tens_to_im(batch[i])
             plt.axis("off")
-            fig.add_subplot(self.rows, self.cols, i+1)
+            fig.add_subplot(self.rows, self.cols, i + 1)
             plt.axis("off")
             if is_image:
-                plt.imshow(im,cmap='gray')
+                plt.imshow(im, cmap='gray')
             else:
                 plt.imshow(im)
         fig.tight_layout()
-        plt.savefig(self.path+str(cur_iter)+"_"+name)
+        plt.savefig(self.path + str(cur_iter) + "_" + name)
         plt.close()
 
 
@@ -260,10 +265,13 @@ def tens_to_lab(tens, num_cl):
     label_numpy = np.transpose(label_tensor.numpy(), (1, 2, 0))
     return label_numpy
 
+
 def tens_to_lab_color(tens, num_cl):
     label_tensor = Colorize(tens, num_cl)
     label_numpy = np.transpose(label_tensor.numpy(), (1, 2, 0))
     return label_numpy
+
+
 ###############################################################################
 # Code below from
 # https://github.com/visinf/1-stage-wseg/blob/38130fee2102d3a140f74a45eec46063fcbeaaf8/datasets/utils.py
@@ -273,6 +281,7 @@ def tens_to_lab_color(tens, num_cl):
 def uint82bin(n, count=8):
     """returns the binary of integer n, count refers to amount of bits"""
     return ''.join([str((n >> y) & 1) for y in range(count - 1, -1, -1)])
+
 
 def GreyScale(tens, num_cl):
     cmap = labelcolormap(num_cl)
@@ -289,7 +298,37 @@ def GreyScale(tens, num_cl):
     return color_image
 
 
+def save_accuracy_to_txt(class_accuracy, filepath):
+    with open(filepath, 'w') as f:
+        for class_idx, accuracy in enumerate(class_accuracy):
+            f.write(f"Class {class_idx}: {accuracy:.2%}\n")
 
 
+def save_predictions_class_distirbution_to_txt(class_counts, filepath):
+    with open(filepath, 'w') as f:
+        for class_idx, counts in enumerate(class_counts):
+            f.write(f"Class {class_idx}: {counts}\n")
 
 
+def check_accuracy(loader, model, opt, device="cuda"):
+    model.eval()
+    class_correct = torch.zeros(opt.num_classes, dtype=torch.float).to(device)
+    class_total = torch.zeros(opt.num_classes, dtype=torch.float).to(device)
+    class_pred = torch.zeros(opt.num_classes, dtype=torch.float).to(device)
+    with torch.no_grad():
+        for data in loader:
+            image, label = data
+            label = label.to(device)
+            image = image.to(device)
+            preds = torch.argmax(model(image), dim=1, keepdim=True)
+            flattened_preds = preds.view(-1)
+            class_counts = torch.bincount(flattened_preds, minlength=opt.num_classes)
+            correct = preds.eq(label.view_as(preds))
+            for i in range(opt.num_classes):
+                class_pred[i] += preds[label == i].sum().item()
+                class_correct[i] += correct[label == i].sum().item()
+                class_total[i] += (label == i).sum().item()
+    class_accuracy = class_correct / class_total
+    save_accuracy_to_txt(class_accuracy, os.path.join(opt.checkpoints_dir, 'class_accuracy.txt'))
+    save_predictions_class_distirbution_to_txt(class_counts, os.path.join(opt.checkpoints_dir, 'pred_class_counts.txt'))
+    model.train()

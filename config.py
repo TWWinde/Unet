@@ -34,7 +34,7 @@ def add_all_arguments(parser, train):
     parser.add_argument('--dataroot', type=str, default='/misc/data/private/autoPET/', help='path to dataset root')
     parser.add_argument('--dataset_mode', type=str, default='medicals', help='this option indicates which dataset should be loaded')
     parser.add_argument('--no_flip', action='store_true', help='if specified, do not flip the images for data argumentation')
-
+    parser.add_argument('--num_classes',type=int, default=37, help='number of classes')
 
     if train:
         parser.add_argument('--im_saver', type=int, default=2000, help='frequency of showing training results')

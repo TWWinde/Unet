@@ -60,12 +60,12 @@ class MedicalDataset(torch.utils.data.Dataset):
             if random.random() < 0.5:
                 image = TR.functional.hflip(image)
                 label = TR.functional.hflip(label)
+            elif random.random() < 0.5:
+                image = TR.functional.vflip(image)
+                label = TR.functional.vflip(label)
         # to tensor
-        image = np.asarray(image)
-        label = np.asarray(label)
-        # label = cv2.cvtColor(label, cv2.COLOR_GRAY2BGR)
         image = TR.functional.to_tensor(image)
         label = TR.functional.to_tensor(label)
         # normalize
-        image = image / 255.0                      #TR.functional.normalize(image, (0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        image = image / 255.0
         return image, label

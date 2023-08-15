@@ -306,7 +306,7 @@ def save_accuracy_to_txt(class_accuracy, filepath):
 
 def save_class_counts_to_txt(pre_counts, label_counts, filepath):
     with open(filepath, 'w') as f:
-        for class_idx, (counts, count) in enumerate(pre_counts,label_counts ):
+        for class_idx, (counts, count) in enumerate(zip(pre_counts,label_counts) ):
             f.write(f"Class {class_idx}: {counts}  {count} \n")
 
 
@@ -333,8 +333,6 @@ def check_accuracy(loader, model, opt, device="cuda"):
                 break
     class_accuracy = class_correct / class_total
     save_accuracy_to_txt(class_accuracy, os.path.join(opt.checkpoints_dir, 'class_accuracy.txt'))
-    save_class_counts_to_txt(class_counts_preds, class_counts_labels, os.path.join(opt.checkpoints_dir, 'class_counts.txt'))
-
-
-
+    save_class_counts_to_txt(class_counts_preds, class_counts_labels, os.path.join(opt.checkpoints_dir, 'class_counts'
+                                                                                                        '.txt'))
     model.train()

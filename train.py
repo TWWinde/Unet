@@ -33,50 +33,64 @@ def loss_calculation(pred, label):
     return loss
 
 
-def train_fn(loader, model, optimizer, opt):
+def train_fn(loader, model, optimizer, opt, cur_step):
     for batch_idx, data in enumerate(loader):
+        cur_step +=1
         image, label = preprocess_input(opt, data)
         model.zero_grad()
         optimizer.zero_grad()
 
         # forward
         predictions = model(image)
-        loss = loss_calculation(predictions, label)
+        pred_bg = predictions[:, 0, :, :]
+        pred_nobg = predictions[:, 1:, :, :]
+        label_bg = label[:, 0, :, :]
+        label_nobg = label[:, 1:, :, :]
+        loss_bg = loss_calculation(pred_bg, label_bg)
+        loss_tissure = loss_calculation(pred_nobg, label_nobg)
+        loss = 0.01*loss_bg + loss_tissure
+
 
         # backward
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        if cur_step % 2000 == 0:
+            im_saver.visualize_batch(model, image, label, cur_step)
+            loss_recorder.append(loss)
 
 
-def main():
-    # load model
-    model = UNet(opt, num_classes=37, in_channels=1)
-    model.to('cuda')
-    model.train()
-
-    # load data
-    dataloader, dataloader_val = dataloaders.get_dataloaders(opt)
-
-    # load checkpoint
-    saver = CheckpointsManager(model, opt.checkpoints_dir)
-    cur_step = saver.load_last_checkpoint()
-    start_epoch = int(cur_step / (len(dataloader.dataset) / opt.batch_size))
-    num_training_steps = int(opt.num_epochs * len(dataloader.dataset) / opt.batch_size)
-    print('total training steps:', num_training_steps)
-
-    optimizer = optim.Adam(model.parameters(), lr=opt.lr)
-    scheduler = ReduceLROnPlateau(optimizer, 'min')
-
-    for epoch in range(start_epoch, opt.num_epochs):
-        train_fn(dataloader, model, optimizer, opt)
-        cur_step += (len(dataloader.dataset) / opt.batch_size)
-        saver.save_checkpoint(cur_step)
-        check_accuracy(dataloader_val, model, opt, device='cuda')
-
-    torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model_final.tar"))
-    print("The training has successfully finished")
 
 
-if '__name__' == '__main__':
-    main()
+
+
+print(':::::::::::::::::::start training:::::::::::::::::::::::::::::')
+# load model
+model = UNet(opt, num_classes=37, in_channels=1)
+model.to('cuda')
+model.train()
+
+
+# load data
+dataloader, dataloader_val = dataloaders.get_dataloaders(opt)
+
+# load checkpoint
+saver = CheckpointsManager(model, opt.checkpoints_dir)
+cur_step = saver.load_last_checkpoint()
+start_epoch = int(cur_step / (len(dataloader.dataset) / opt.batch_size))
+num_training_steps = int(opt.num_epochs * len(dataloader.dataset) / opt.batch_size)
+print('total training steps:', num_training_steps)
+
+optimizer = optim.Adam(model.parameters(), lr=opt.lr)
+scheduler = ReduceLROnPlateau(optimizer, 'min')
+
+for epoch in range(start_epoch, opt.num_epochs):
+    train_fn(dataloader, model, optimizer, opt, cur_step)
+    cur_step += (len(dataloader.dataset) // opt.batch_size)
+    saver.save_checkpoint(cur_step)
+    check_accuracy(dataloader_val, model, opt, device='cuda')
+    loss_recorder.plot()
+
+
+torch.save(model.state_dict(), os.path.join(opt.checkpoints_dir, "Unet_model_final.tar"))
+print("The training has successfully finished")

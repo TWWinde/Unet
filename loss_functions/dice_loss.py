@@ -83,7 +83,8 @@ def mean_tensor(inp, axes, keepdim=False):
 
 
 class SoftDiceLoss(nn.Module):
-    def __init__(self, smooth=1., apply_nonlin=None, batch_dice=False, do_bg=True, smooth_in_nom=True, background_weight=1, rebalance_weights=None):
+    def __init__(self, smooth=1., apply_nonlin=None, batch_dice=True, do_bg=True, smooth_in_nom=True,
+                 background_weight=0.001, rebalance_weights=None):
         """
         hahaa no documentation for you today
         :param smooth:
@@ -149,9 +150,13 @@ def soft_dice_per_batch(net_output, gt, smooth=1., smooth_in_nom=1., background_
     return result
 
 
-def soft_dice_per_batch_2(net_output, gt, smooth=1., smooth_in_nom=1., background_weight=1, rebalance_weights=None):
+a = [0.001, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.05, 1, 1, 0.1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.05,
+     0.015, 0.5, 1]
+
+
+def soft_dice_per_batch_2(net_output, gt, smooth=1., smooth_in_nom=1., background_weight=1, rebalance_weights=a):
     if rebalance_weights is not None and len(rebalance_weights) != gt.shape[1]:
-        rebalance_weights = rebalance_weights[1:] # this is the case when use_bg=False
+        rebalance_weights = rebalance_weights[1:]  # this is the case when use_bg=False
     axes = tuple([0] + list(range(2, len(net_output.size()))))
     tp = sum_tensor(net_output * gt, axes, keepdim=False)
     fn = sum_tensor((1 - net_output) * gt, axes, keepdim=False)

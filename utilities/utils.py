@@ -29,7 +29,7 @@ def get_start_iters(start_iter, dataset_size):
 
 
 def labelcolormap(N):
-    if N == 37:
+    if N == 39:
         cmap = np.array([
             [0, 0, 0],  # 0 - Background
             [255, 0, 0],  # 1 - Class 1 (Red)
@@ -68,6 +68,10 @@ def labelcolormap(N):
             [255, 128, 128],  # 34 - Class 34 (Pale Red)
             [128, 255, 128],  # 35 - Class 35 (Pale Green)
             [128, 128, 255],  # 36 - Class 36 (Pale Blue)
+            [255, 255, 255],
+            [255, 64, 64]
+
+
         ], dtype=np.uint8)
     else:
         cmap = np.zeros((N, 3), dtype=np.uint8)
@@ -224,7 +228,7 @@ class image_saver():
         self.grid = 5
         self.path = os.path.join(opt.checkpoints_dir, opt.name, "images") + "/"
         self.opt = opt
-        self.num_cl = 37
+        self.num_cl = 39
         os.makedirs(self.path, exist_ok=True)
 
     def visualize_batch(self, model, image, label, cur_iter):

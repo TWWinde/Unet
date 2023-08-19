@@ -37,6 +37,8 @@ def train_fn(loader, model, optimizer, opt, cur_step):
     for batch_idx, data in enumerate(loader):
         cur_step +=1
         image, label = preprocess_input(opt, data)
+        print(image.size())
+        print(label.size())
         model.zero_grad()
         optimizer.zero_grad()
 

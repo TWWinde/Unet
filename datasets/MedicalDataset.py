@@ -57,10 +57,10 @@ class MedicalDataset(torch.utils.data.Dataset):
         label = label.astype(np.int)
         image = (image - image.min()) / (image.max() - image.min())
         # flip
-        if not (self.opt.phase == "test" or self.opt.no_flip or self.for_metrics):
-            if random.random() < 0.5:
-                image = np.fliplr(image)
-                label = np.fliplr(label)
+        #if not (self.opt.phase == "test" or self.opt.no_flip or self.for_metrics):
+            #if random.random() < 0.5:
+                #image = np.fliplr(image)
+                #label = np.fliplr(label)
             #elif random.random() < 0.5:
                 #image = ndimage.rotate(image, 90)
                 #label = ndimage.rotate(label, 90)

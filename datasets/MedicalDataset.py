@@ -61,9 +61,9 @@ class MedicalDataset(torch.utils.data.Dataset):
             if random.random() < 0.5:
                 image = np.fliplr(image)
                 label = np.fliplr(label)
-            elif random.random() < 0.5:
-                image = ndimage.rotate(image, 90)
-                label = ndimage.rotate(label, 90)
+            #elif random.random() < 0.5:
+                #image = ndimage.rotate(image, 90)
+                #label = ndimage.rotate(label, 90)
         # to tensor
         image = TR.functional.to_tensor(image)
         label = TR.functional.to_tensor(label)

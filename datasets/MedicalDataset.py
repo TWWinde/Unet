@@ -7,7 +7,7 @@ import os
 from PIL import Image
 import numpy as np
 from torch.utils import data
-
+import nibabel as nib
 
 class MedicalDataset(torch.utils.data.Dataset):
     def __init__(self, opt, for_metrics):
@@ -27,11 +27,11 @@ class MedicalDataset(torch.utils.data.Dataset):
         return len(self.images)
 
     def __getitem__(self, idx):
-        image = Image.open(self.images[idx])
-        image = image.convert('L')
-        label = Image.open(self.labels[idx])
+        image = nib.load(self.images[idx])
+        image = image.get_fdata()
+        label = nib.load(self.images[idx])
+        label = label.get_fdata()
         image, label = self.transforms(image, label)
-        label = label * 255
 
         return {"image": image, "label": label}
 

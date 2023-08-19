@@ -18,7 +18,9 @@ def get_2d_images(ct_path, label_path):
 
         for z in range(seg_3d.shape[2]):
             seg_slice = seg_3d[:, :, z]
+            seg_slice = seg_slice[72:328, 65:321]
             img_slice = img_3d[:, :, z]
+            img_slice = img_slice[72:328, 65:321]
             new_affine1 = nifti_img.affine.copy()
             sliced_nifti_img = nib.Nifti1Image(img_slice, new_affine1)
             nib.save(sliced_nifti_img, f'/misc/data/private/autoPET/train2/CT/CT_slice_{n}.nii.gz')
@@ -37,7 +39,9 @@ def get_2d_images(ct_path, label_path):
 
         for z in range(seg_3d.shape[2]):
             seg_slice = seg_3d[:, :, z]
+            seg_slice = seg_slice[72:328, 65:321]
             img_slice = img_3d[:, :, z]
+            img_slice = img_slice[72:328, 65:321]
             new_affine1 = nifti_img.affine.copy()
             sliced_nifti_img = nib.Nifti1Image(img_slice, new_affine1)
             nib.save(sliced_nifti_img, f'/misc/data/private/autoPET/test2/CT/CT_slice_{n}.nii.gz')
@@ -56,7 +60,9 @@ def get_2d_images(ct_path, label_path):
 
         for z in range(seg_3d.shape[2]):
             seg_slice = seg_3d[:, :, z]
+            seg_slice = seg_slice[72:328, 65:321]
             img_slice = img_3d[:, :, z]
+            img_slice = img_slice[72:328, 65:321]
             new_affine1 = nifti_img.affine.copy()
             sliced_nifti_img = nib.Nifti1Image(img_slice, new_affine1)
             nib.save(sliced_nifti_img, f'/misc/data/private/autoPET/val2/CT/CT_slice_{n}.nii.gz')

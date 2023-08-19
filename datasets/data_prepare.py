@@ -11,7 +11,8 @@ def get_2d_images(ct_path, label_path):
     n = 0
 
     for i in range(int(len(ct_path) * 0.9)):
-        total_pixel_count_train = torch.zeros(37, dtype=torch.long)
+        if i==2:
+            break
         nifti_img = nib.load(ct_path[i])
         img_3d = nifti_img.get_fdata()
         nifti_seg = nib.load(label_path[i])
@@ -30,7 +31,8 @@ def get_2d_images(ct_path, label_path):
     print("finished train data set")
     n = 0
     for j in range(int(len(ct_path) * 0.9), int(len(ct_path) * 0.95)):
-        total_pixel_count_test = torch.zeros(37, dtype=torch.long)
+        if j==2:
+            break
         nifti_img = nib.load(ct_path[j])
         img_3d = nifti_img.get_fdata()
         nifti_seg = nib.load(label_path[j])
@@ -49,7 +51,8 @@ def get_2d_images(ct_path, label_path):
     print("finished test data set")
     n = 0
     for k in range(int(len(ct_path) * 0.95), len(ct_path)):
-        total_pixel_count_val = torch.zeros(37, dtype=torch.long)
+        if k==2:
+            break
         nifti_img = nib.load(ct_path[k])
         img_3d = nifti_img.get_fdata()
         nifti_seg = nib.load(label_path[k])
@@ -140,7 +143,7 @@ train_persentage = percentage(total_pixel_count_train)
 test_persentage = percentage(total_pixel_count_test)
 val_persentage = percentage(total_pixel_count_val)
 
-with open('/misc/data/private/autoPET/class_statistics','w') as f:
+with open('/no_backups/s1449/Unet/class_statistics', 'w') as f:
     for class_idx, (p1, p2, p3, p4) in enumerate(zip(total_persentage, train_persentage, test_persentage, val_persentage )):
         f.write(f'Class {class_idx}:  {p1}         {p2}        {p3}        {p4}  \n  ')
 

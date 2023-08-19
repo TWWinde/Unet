@@ -19,12 +19,13 @@ def get_2d_images(ct_path, label_path):
         for z in range(seg_3d.shape[2]):
             seg_slice = seg_3d[:, :, z]
             img_slice = img_3d[:, :, z]
-
-            if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
-                plt.imsave('/misc/data/private/autoPET/train1/CT/' + "CT_slice_" + str(n) + '.png', img_slice,cmap='gray')
-                cv2.imwrite('/misc/data/private/autoPET/train1/SEG/' + "SEG_slice_" + str(n) + '.png', seg_slice)
-
-                n += 1
+            new_affine1 = nifti_img.affine.copy()
+            sliced_nifti_img = nib.Nifti1Image(img_slice, new_affine1)
+            nib.save(sliced_nifti_img, f'/misc/data/private/autoPET/train2/CT/CT_slice_{n}.nii.gz')
+            new_affine2 = nifti_seg.affine.copy()
+            sliced_nifti_seg = nib.Nifti1Image(seg_slice, new_affine2)
+            nib.save(sliced_nifti_seg, f'/misc/data/private/autoPET/train2/SEG/sliced_image_{n}.nii.gz')
+            n += 1
 
     print("finished train data set")
     n = 0
@@ -37,12 +38,13 @@ def get_2d_images(ct_path, label_path):
         for z in range(seg_3d.shape[2]):
             seg_slice = seg_3d[:, :, z]
             img_slice = img_3d[:, :, z]
-
-            if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
-                plt.imsave('/misc/data/private/autoPET/test1/CT/' + "CT_slice_" + str(n) + '.png', img_slice,
-                cmap='gray')
-                cv2.imwrite('/misc/data/private/autoPET/test1/SEG/' + "SEG_slice_" + str(n) + '.png', seg_slice)
-                n += 1
+            new_affine1 = nifti_img.affine.copy()
+            sliced_nifti_img = nib.Nifti1Image(img_slice, new_affine1)
+            nib.save(sliced_nifti_img, f'/misc/data/private/autoPET/test2/CT/CT_slice_{n}.nii.gz')
+            new_affine2 = nifti_seg.affine.copy()
+            sliced_nifti_seg = nib.Nifti1Image(seg_slice, new_affine2)
+            nib.save(sliced_nifti_seg, f'/misc/data/private/autoPET/test2/SEG/sliced_image_{n}.nii.gz')
+            n += 1
 
     print("finished test data set")
     n = 0
@@ -55,11 +57,13 @@ def get_2d_images(ct_path, label_path):
         for z in range(seg_3d.shape[2]):
             seg_slice = seg_3d[:, :, z]
             img_slice = img_3d[:, :, z]
-            if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
-                plt.imsave('/misc/data/private/autoPET/val1/CT/' + "CT_slice_" + str(n) + '.png', img_slice,
-                cmap='gray')
-                cv2.imwrite('/misc/data/private/autoPET/val1/SEG/' + "SEG_slice_" + str(n) + '.png', seg_slice)
-                n += 1
+            new_affine1 = nifti_img.affine.copy()
+            sliced_nifti_img = nib.Nifti1Image(img_slice, new_affine1)
+            nib.save(sliced_nifti_img, f'/misc/data/private/autoPET/val2/CT/CT_slice_{n}.nii.gz')
+            new_affine2 = nifti_seg.affine.copy()
+            sliced_nifti_seg = nib.Nifti1Image(seg_slice, new_affine2)
+            nib.save(sliced_nifti_seg, f'/misc/data/private/autoPET/val2/SEG/sliced_image_{n}.nii.gz')
+            n += 1
 
     print("finished validation data set")
 
@@ -81,19 +85,19 @@ def list_images(path):
     return ct_path, label_path
 
 
-os.makedirs('/misc/data/private/autoPET/train1/CT', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/train1/SEG', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/test1/CT', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/test1/SEG', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/val1/CT', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/val1/SEG', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/train2/CT', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/train2/SEG', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/test2/CT', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/test2/SEG', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/val2/CT', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/val2/SEG', exist_ok=True)
 path_imagesTr = "/misc/data/private/autoPET/imagesTr"
 root_dir = "/misc/data/private/autoPET/"
 test_path = '/misc/data/private/autoPET/train/SEG'
 
 ct_paths, label_paths = list_images(path_imagesTr)
 
-#get_2d_images(ct_paths, label_paths)
+get_2d_images(ct_paths, label_paths)
 
 #unique_value = set()
 # for item in label_paths:
@@ -142,21 +146,35 @@ def percentage(vector):
         #f.write(f'Class {class_idx}:  {p1}         {p2}        {p3}        {p4}  \n  ')
 
 
-total_pixel_counts = np.zeros_like(50, dtype=np.uint32)
-def count_pixel_value(label_path):
-    for i in range(label_path):
-        nifti_seg = nib.load(label_path[i])
+total_pixel_counts = [0] * 50
+def count_pixel_value(root_path):
+    for item in os.listdir(os.path.join(root_path,'train2','SEG')):
+        nifti_seg = nib.load(os.path.join(root_path,'train2','SEG', item))
         seg_3d = nifti_seg.get_fdata()
         unique_values, counts = np.unique(seg_3d, return_counts=True)
         for value, count in zip(unique_values, counts):
-            total_pixel_counts[value] += count
+            total_pixel_counts[int(value)] += count
 
-    with open('/no_backups/s1449/Unet/pixel_counts', 'w') as f:
+    for item in os.listdir(os.path.join(root_path,'test2','SEG')):
+        nifti_seg = nib.load(os.path.join(root_path,'test2','SEG', item))
+        seg_3d = nifti_seg.get_fdata()
+        unique_values, counts = np.unique(seg_3d, return_counts=True)
+        for value, count in zip(unique_values, counts):
+            total_pixel_counts[int(value)] += count
+
+    for item in os.listdir(os.path.join(root_path, 'val2', 'SEG')):
+        nifti_seg = nib.load(os.path.join(root_path, 'val2', 'SEG', item))
+        seg_3d = nifti_seg.get_fdata()
+        unique_values, counts = np.unique(seg_3d, return_counts=True)
+        for value, count in zip(unique_values, counts):
+            total_pixel_counts[int(value)] += count
+
+    with open('/no_backups/s1449/Unet/pixel_counts_nib', 'w') as f:
         for value, count in enumerate(total_pixel_counts):
             f.write(f'Pixel value {value}:   Count = {count} \n ')
 
 
-count_pixel_value(label_paths)
+count_pixel_value(root_dir)
 
 
 print('finished image')

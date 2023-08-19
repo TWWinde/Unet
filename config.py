@@ -7,14 +7,14 @@ from utilities import utils
 def read_arguments(train=True):
     parser = argparse.ArgumentParser()
     parser = add_all_arguments(parser, train)
-    parser.add_argument('--phase', type=str, default='train')
+    parser.add_argument('--phase', type=str, default='train2')
     opt = parser.parse_args()
     if train:
         set_dataset_default_lm(opt, parser)
         if opt.continue_train:
             update_options_from_file(opt, parser)
     opt = parser.parse_args()
-    opt.phase = 'train' if train else 'test'
+    opt.phase = 'train2' if train else 'test2'
     if train:
         opt.loaded_latest_iter = 0 if not opt.continue_train else load_iter(opt)
     utils.fix_seed(opt.seed)

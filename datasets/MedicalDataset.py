@@ -8,6 +8,7 @@ from PIL import Image
 import numpy as np
 from torch.utils import data
 import nibabel as nib
+from scipy import ndimage
 
 class MedicalDataset(torch.utils.data.Dataset):
     def __init__(self, opt, for_metrics):
@@ -31,12 +32,13 @@ class MedicalDataset(torch.utils.data.Dataset):
         image = image.get_fdata()
         label = nib.load(self.images[idx])
         label = label.get_fdata()
+        # numpy array
         image, label = self.transforms(image, label)
 
         return {"image": image, "label": label}
 
     def list_images(self):
-        mode = "val" if self.opt.phase == "test" else "train"
+        mode = "val2" if self.opt.phase == "test2" else "train2"
         images = []
         path_img = os.path.join(self.opt.dataroot, mode, "CT")
         for item in sorted(os.listdir(path_img)):
@@ -51,21 +53,21 @@ class MedicalDataset(torch.utils.data.Dataset):
 
     def transforms(self, image, label):
         assert image.size == label.size
-        # resize
-        new_width, new_height = (int(self.opt.load_size / self.opt.aspect_ratio), self.opt.load_size)
-        image = TR.functional.crop(image, 72, 65, new_width, new_height)
-        label = TR.functional.crop(label, 72, 65, new_width, new_height)
+        # normalize
+        label = label.astype(np.int)
+        image = (image - image.min()) / (image.max() - image.min())
         # flip
         if not (self.opt.phase == "test" or self.opt.no_flip or self.for_metrics):
             if random.random() < 0.5:
-                image = TR.functional.hflip(image)
-                label = TR.functional.hflip(label)
+                image = np.fliplr(image)
+                label = np.fliplr(label)
             elif random.random() < 0.5:
-                image = TR.functional.vflip(image)
-                label = TR.functional.vflip(label)
+                image = ndimage.rotate(image, 90)
+                label = ndimage.rotate(label, 90)
         # to tensor
         image = TR.functional.to_tensor(image)
         label = TR.functional.to_tensor(label)
-        # normalize
-        image = image / 255.0
+
+
+
         return image, label

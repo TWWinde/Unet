@@ -14,4 +14,5 @@ def preprocess_input(opt, data):
     else:
         input_label = torch.FloatTensor(bs, nc, h, w).zero_()
     input_semantics = input_label.scatter_(1, label_map, 1.0)
+
     return data['image'], input_semantics

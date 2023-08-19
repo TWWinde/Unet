@@ -19,9 +19,6 @@ def get_2d_images(ct_path, label_path):
 
         for z in range(seg_3d.shape[2]):
             seg_slice = seg_3d[:, :, z]
-            pixel_values = seg_slice.view(-1)
-            class_count = torch.bincount(pixel_values,minlength=37)
-            total_pixel_count_train += class_count
             img_slice = img_3d[:, :, z]
 
             if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
@@ -41,9 +38,6 @@ def get_2d_images(ct_path, label_path):
 
         for z in range(seg_3d.shape[2]):
             seg_slice = seg_3d[:, :, z]
-            pixel_values = seg_slice.view(-1)
-            class_count = torch.bincount(pixel_values, minlength=37)
-            total_pixel_count_test += class_count
             img_slice = img_3d[:, :, z]
 
             if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
@@ -63,9 +57,6 @@ def get_2d_images(ct_path, label_path):
 
         for z in range(seg_3d.shape[2]):
             seg_slice = seg_3d[:, :, z]
-            pixel_values = seg_slice.view(-1)
-            class_count = torch.bincount(pixel_values, minlength=37)
-            total_pixel_count_val += class_count
             img_slice = img_3d[:, :, z]
             if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
                 plt.imsave('/misc/data/private/autoPET/val1/CT/' + "CT_slice_" + str(n) + '.png', img_slice,

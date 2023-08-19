@@ -2,7 +2,9 @@ import os
 import cv2
 import nibabel as nib
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
+from PIL import Image
 
 
 def get_2d_images(ct_path, label_path):
@@ -23,8 +25,8 @@ def get_2d_images(ct_path, label_path):
             img_slice = img_3d[:, :, z]
 
             if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
-                plt.imsave('/misc/data/private/autoPET/train/CT/' + "CT_slice_" + str(n) + '.png', img_slice,cmap='gray')
-                cv2.imwrite('/misc/data/private/autoPET/train/SEG/' + "SEG_slice_" + str(n) + '.png', seg_slice)
+                plt.imsave('/misc/data/private/autoPET/train1/CT/' + "CT_slice_" + str(n) + '.png', img_slice,cmap='gray')
+                cv2.imwrite('/misc/data/private/autoPET/train1/SEG/' + "SEG_slice_" + str(n) + '.png', seg_slice)
 
                 n += 1
 
@@ -45,9 +47,9 @@ def get_2d_images(ct_path, label_path):
             img_slice = img_3d[:, :, z]
 
             if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
-                plt.imsave('/misc/data/private/autoPET/test/CT/' + "CT_slice_" + str(n) + '.png', img_slice,
+                plt.imsave('/misc/data/private/autoPET/test1/CT/' + "CT_slice_" + str(n) + '.png', img_slice,
                 cmap='gray')
-                cv2.imwrite('/misc/data/private/autoPET/test/SEG/' + "SEG_slice_" + str(n) + '.png', seg_slice)
+                cv2.imwrite('/misc/data/private/autoPET/test1/SEG/' + "SEG_slice_" + str(n) + '.png', seg_slice)
                 n += 1
 
     print("finished test data set")
@@ -66,27 +68,14 @@ def get_2d_images(ct_path, label_path):
             total_pixel_count_val += class_count
             img_slice = img_3d[:, :, z]
             if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
-                plt.imsave('/misc/data/private/autoPET/validation/CT/' + "CT_slice_" + str(n) + '.png', img_slice,
+                plt.imsave('/misc/data/private/autoPET/val1/CT/' + "CT_slice_" + str(n) + '.png', img_slice,
                 cmap='gray')
-                cv2.imwrite('/misc/data/private/autoPET/validation/SEG/' + "SEG_slice_" + str(n) + '.png', seg_slice)
+                cv2.imwrite('/misc/data/private/autoPET/val1/SEG/' + "SEG_slice_" + str(n) + '.png', seg_slice)
                 n += 1
 
     print("finished validation data set")
 
 
-    pixel_count =  total_pixel_count_val + total_pixel_count_test + total_pixel_count_train
-    def percentage(vector):
-        pixel_number = vector.sum()
-        return vector.float() / pixel_number
-
-    total_persentage = percentage(pixel_count)
-    train_persentage = percentage(total_pixel_count_train)
-    test_persentage = percentage(total_pixel_count_test)
-    val_persentage = percentage(total_pixel_count_val)
-
-    with open('/misc/data/private/autoPET/class_statistics','w') as f:
-        for class_idx, (p1,p2,p3,p4) in enumerate(zip(total_persentage, train_persentage, test_persentage,val_persentage )):
-            f.write(f'Class {class_idx}:  {p1}         {p2}        {p3}        {p4}  \n  ')
 
 
 
@@ -115,6 +104,9 @@ root_dir = "/misc/data/private/autoPET/"
 test_path = '/misc/data/private/autoPET/train/SEG'
 
 ct_paths, label_paths = list_images(path_imagesTr)
+
+get_2d_images(ct_paths, label_paths)
+
 #unique_value = set()
 # for item in label_paths:
 #     nifti_seg = nib.load(item)
@@ -132,8 +124,36 @@ ct_paths, label_paths = list_images(path_imagesTr)
 
 #print(unique_value)
 #print('number of classes:',len(unique_value))
+def count_pixels(dir):
+    for item in os.listdir(dir):
+        image = Image.open(os.path.join(dir,item))
+        image_array = np.array(image)
+        unique_pixel_values, pixel_counts = np.unique(image_array, return_counts=True)
+        class_pixel_counts = np.zeros(37, dtype=int)
+        for value, count in zip(unique_pixel_values, pixel_counts):
+            class_pixel_counts[value] = count
+
+    return class_pixel_counts
+
+total_pixel_count_train = count_pixels('/misc/data/private/autoPET/train1/SEG')
+total_pixel_count_test = count_pixels('/misc/data/private/autoPET/test1/SEG')
+total_pixel_count_val = count_pixels('/misc/data/private/autoPET/test1/SEG')
+
+pixel_count = total_pixel_count_val + total_pixel_count_test + total_pixel_count_train
+def percentage(vector):
+    pixel_number = vector.sum()
+    return vector.astype(float) / pixel_number
+
+total_persentage = percentage(pixel_count)
+train_persentage = percentage(total_pixel_count_train)
+test_persentage = percentage(total_pixel_count_test)
+val_persentage = percentage(total_pixel_count_val)
+
+with open('/misc/data/private/autoPET/class_statistics','w') as f:
+    for class_idx, (p1, p2, p3, p4) in enumerate(zip(total_persentage, train_persentage, test_persentage, val_persentage )):
+        f.write(f'Class {class_idx}:  {p1}         {p2}        {p3}        {p4}  \n  ')
 
 
-get_2d_images(ct_paths, label_paths)
 
-print('finished')
+print('finished image')
+

@@ -54,7 +54,7 @@ class MedicalDataset(torch.utils.data.Dataset):
     def transforms(self, image, label):
         assert image.size == label.size
         # normalize
-        label = label.astype(np.int)
+        #label = label.astype(np.int)
         image = (image - image.min()) / (image.max() - image.min())
         # flip
         #if not (self.opt.phase == "test" or self.opt.no_flip or self.for_metrics):

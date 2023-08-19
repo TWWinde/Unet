@@ -56,7 +56,7 @@ class MedicalDataset(torch.utils.data.Dataset):
         # normalize
         label = label.astype(np.int)
         image = (image - image.min()) / (image.max() - image.min())
-        image = image.astype(np.float)
+        image = image.squeeze()
         # flip
         #if not (self.opt.phase == "test" or self.opt.no_flip or self.for_metrics):
             #if random.random() < 0.5:

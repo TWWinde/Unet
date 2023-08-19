@@ -30,7 +30,7 @@ class MedicalDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         image = nib.load(self.images[idx])
         image = image.get_fdata()
-        label = nib.load(self.images[idx])
+        label = nib.load(self.labels[idx])
         label = label.get_fdata()
         # numpy array
         image, label = self.transforms(image, label)
@@ -56,7 +56,6 @@ class MedicalDataset(torch.utils.data.Dataset):
         # normalize
         label = label.astype(np.int)
         image = (image - image.min()) / (image.max() - image.min())
-        image = image.squeeze()
         # flip
         #if not (self.opt.phase == "test" or self.opt.no_flip or self.for_metrics):
             #if random.random() < 0.5:

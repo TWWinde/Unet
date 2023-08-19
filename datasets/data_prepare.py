@@ -11,7 +11,7 @@ def get_2d_images(ct_path, label_path):
     n = 0
 
     for i in range(int(len(ct_path) * 0.9)):
-        if i==2:
+        if i==1:
             break
         nifti_img = nib.load(ct_path[i])
         img_3d = nifti_img.get_fdata()
@@ -31,7 +31,7 @@ def get_2d_images(ct_path, label_path):
     print("finished train data set")
     n = 0
     for j in range(int(len(ct_path) * 0.9), int(len(ct_path) * 0.95)):
-        if j==2:
+        if j==int(len(ct_path) * 0.9)+1:
             break
         nifti_img = nib.load(ct_path[j])
         img_3d = nifti_img.get_fdata()
@@ -51,7 +51,7 @@ def get_2d_images(ct_path, label_path):
     print("finished test data set")
     n = 0
     for k in range(int(len(ct_path) * 0.95), len(ct_path)):
-        if k==2:
+        if k==int(len(ct_path) * 0.95)+1:
             break
         nifti_img = nib.load(ct_path[k])
         img_3d = nifti_img.get_fdata()

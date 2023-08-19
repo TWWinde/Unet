@@ -60,7 +60,7 @@ def train_fn(loader, model, optimizer, opt, cur_step):
 
 print(':::::::::::::::::::start training:::::::::::::::::::::::::::::')
 # load model
-model = UNet(opt, num_classes=39, in_channels=1)
+model = UNet(opt, num_classes=37, in_channels=1)
 model.to('cuda')
 model.train()
 

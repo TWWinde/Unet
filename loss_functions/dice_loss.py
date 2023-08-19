@@ -122,7 +122,7 @@ class SoftDiceLoss(nn.Module):
         # now x and y should have shape (B, C, X, Y(, Z))) and (B, 1, X, Y(, Z))), respectively
         y_onehot = torch.zeros(shp_x)
         if x.device.type == "cuda":
-            y_onehot = y_onehot.cuda()  #x.device.index
+            y_onehot = y_onehot.cuda(x.device.index)
         y_onehot.scatter_(1, y, 1)
         if not self.do_bg:
             x = x[:, 1:]

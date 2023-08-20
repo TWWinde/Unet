@@ -3,7 +3,7 @@ import torch
 
 def preprocess_input(opt, data):
     data['label'] = data['label'].long()
-    #data['image'] = data['image'].float()
+    data['image'] = data['image'].float()
     if opt.gpu_ids != "-1":
         data['label'] = data['label'].cuda()
         data['image'] = data['image'].cuda()

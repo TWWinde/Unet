@@ -48,7 +48,7 @@ def train_fn(loader, model, optimizer, opt, cur_step):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if cur_step % 2 == 0:
+        if cur_step % 1000 == 0:
             im_saver.visualize_batch(model, image, label, cur_step)
             loss_recorder.append(loss.item())
 

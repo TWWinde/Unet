@@ -93,7 +93,7 @@ test_path = '/misc/data/private/autoPET/train/SEG'
 
 ct_paths, label_paths = list_images(path_imagesTr)
 
-get_2d_images(ct_paths, label_paths)
+#get_2d_images(ct_paths, label_paths)
 
 #unique_value = set()
 # for item in label_paths:
@@ -123,24 +123,40 @@ def count_pixels(dir):
 
     return class_pixel_counts
 
-total_pixel_count_train = count_pixels('/misc/data/private/autoPET/train1/SEG')
-total_pixel_count_test = count_pixels('/misc/data/private/autoPET/test1/SEG')
-total_pixel_count_val = count_pixels('/misc/data/private/autoPET/test1/SEG')
+#total_pixel_count_train = count_pixels('/misc/data/private/autoPET/train1/SEG')
+#total_pixel_count_test = count_pixels('/misc/data/private/autoPET/test1/SEG')
+#total_pixel_count_val = count_pixels('/misc/data/private/autoPET/test1/SEG')
 
-pixel_count = total_pixel_count_val + total_pixel_count_test + total_pixel_count_train
+#pixel_count = total_pixel_count_val + total_pixel_count_test + total_pixel_count_train
 def percentage(vector):
     pixel_number = vector.sum()
     return vector.astype(float) / pixel_number
 
-total_persentage = percentage(pixel_count)
-train_persentage = percentage(total_pixel_count_train)
-test_persentage = percentage(total_pixel_count_test)
-val_persentage = percentage(total_pixel_count_val)
+#total_persentage = percentage(pixel_count)
+#train_persentage = percentage(total_pixel_count_train)
+#test_persentage = percentage(total_pixel_count_test)
+#val_persentage = percentage(total_pixel_count_val)
 
-with open('/no_backups/s1449/Unet/class_statistics', 'w') as f:
-    for class_idx, (p1, p2, p3, p4) in enumerate(zip(total_persentage, train_persentage, test_persentage, val_persentage )):
-        f.write(f'Class {class_idx}:  {p1}         {p2}        {p3}        {p4}  \n  ')
+#with open('/no_backups/s1449/Unet/class_statistics', 'w') as f:
+    #for class_idx, (p1, p2, p3, p4) in enumerate(zip(total_persentage, train_persentage, test_persentage, val_persentage )):
+        #f.write(f'Class {class_idx}:  {p1}         {p2}        {p3}        {p4}  \n  ')
 
+
+total_pixel_counts = np.zeros_like(50, dtype=np.uint32)
+def count_pixel_value(label_path):
+    for i in range(label_path):
+        nifti_seg = nib.load(label_path[i])
+        seg_3d = nifti_seg.get_fdata()
+        unique_values, counts = np.unique(seg_3d, return_counts=True)
+        for value, count in zip(unique_values, counts):
+            total_pixel_counts[value] += count
+
+    with open('/no_backups/s1449/Unet/pixel_counts', 'w') as f:
+        for value, count in enumerate(total_pixel_counts):
+            f.write(f'Pixel value {value}:   Count = {count} \n ')
+
+
+count_pixel_value(label_paths)
 
 
 print('finished image')

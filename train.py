@@ -42,6 +42,7 @@ def train_fn(loader, model, optimizer, opt, cur_step):
 
         # forward
         predictions = model(image)
+        print(predictions.size())
         loss = loss_calculation(predictions, label)
 
 

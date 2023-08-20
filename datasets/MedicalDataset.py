@@ -56,7 +56,7 @@ class MedicalDataset(torch.utils.data.Dataset):
         # normalize
         label = label.astype(np.int)
         image = (image - image.min()) / (image.max() - image.min())
-        image = Image.fromarray(image*255.0)
+        image = Image.fromarray(image)
         # flip
         #if not (self.opt.phase == "test" or self.opt.no_flip or self.for_metrics):
             #if random.random() < 0.5:
@@ -68,6 +68,6 @@ class MedicalDataset(torch.utils.data.Dataset):
         # to tensor
         image = TR.functional.to_tensor(image)
         label = TR.functional.to_tensor(label)
-        image = TR.functional.normalize(image, [0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+        #image = TR.functional.normalize(image, [0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 
         return image, label

@@ -36,9 +36,12 @@ def loss_calculation(pred, label):
 def train_fn(loader, model, optimizer, opt, cur_step):
     for batch_idx, data in enumerate(loader):
         cur_step +=1
-        image, label = preprocess_input(opt, data)
-        print(image.size())
-        print(label.size())
+        image, label = preprocess_input(opt, data)  # [16, 1, 256, 256], [16, 39, 256, 256]
+        target_element = 1
+        bool_tensor = label == target_element
+        # 计算 True 值的数量
+        count = bool_tensor.sum().item()
+        print(f"Number of {target_element}s in the tensor: {count}")
         model.zero_grad()
         optimizer.zero_grad()
 

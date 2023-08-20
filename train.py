@@ -37,7 +37,6 @@ def train_fn(loader, model, optimizer, opt, cur_step):
     for batch_idx, data in enumerate(loader):
         cur_step +=1
         image, label = preprocess_input(opt, data)  # [16, 1, 256, 256], [16, 39, 256, 256]
-        print(label[0])
         model.zero_grad()
         optimizer.zero_grad()
 
@@ -49,7 +48,7 @@ def train_fn(loader, model, optimizer, opt, cur_step):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if cur_step % 2000 == 0:
+        if cur_step % 2 == 0:
             im_saver.visualize_batch(model, image, label, cur_step)
             loss_recorder.append(loss.item())
 

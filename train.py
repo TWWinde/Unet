@@ -37,14 +37,14 @@ def train_fn(loader, model, optimizer, opt, cur_step):
     for batch_idx, data in enumerate(loader):
         cur_step +=1
         image, label = preprocess_input(opt, data)
+        print(image.size())
+        print(label.size())
         model.zero_grad()
         optimizer.zero_grad()
 
         # forward
-        predictions = model(image)
-        print(predictions.size())
+        predictions = model(image)  # [16, 39, 256, 256]
         loss = loss_calculation(predictions, label)
-
 
         # backward
         optimizer.zero_grad()

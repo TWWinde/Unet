@@ -96,7 +96,7 @@ def Colorize(tens, num_cl):
     size = tens.size()
     color_image = torch.ByteTensor(3, size[1], size[2]).fill_(0)
     tens = torch.argmax(tens, dim=0, keepdim=True)
-    target_element = 1
+    target_element = 0
 
     # 创建一个布尔张量，表示张量中的元素是否等于目标元素
     bool_tensor = tens == target_element

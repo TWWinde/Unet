@@ -55,17 +55,17 @@ class MedicalDataset(torch.utils.data.Dataset):
         assert image.size == label.size
         # normalize
         label = label.astype(np.int)
-        max_value = np.max(image)
-        min_value = np.min(image)
+        #max_value = np.max(image)
+        #min_value = np.min(image)
 
         # 检查分母是否为零
-        if max_value - min_value == 0:
-            image = np.zeros_like(image, dtype=np.uint8)  # 图像最大值和最小值相等，设置为全黑
-        else:
-            image = (image - min_value) / (max_value - min_value)  # 进行归一化
+        #if max_value - min_value == 0:
+            #image = np.zeros_like(image, dtype=np.uint8)  # 图像最大值和最小值相等，设置为全黑
+        #else:
+            #image = (image - min_value) / (max_value - min_value)  # 进行归一化
 
         #image = (image - image.min()) / (image.max() - image.min())
-        image = Image.fromarray(image)
+        #image = Image.fromarray(image)
         # flip
         #if not (self.opt.phase == "test" or self.opt.no_flip or self.for_metrics):
             #if random.random() < 0.5:

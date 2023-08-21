@@ -185,81 +185,81 @@ def count_pixel_value(root_path):
 
 
 print('finished image')
+import matplotlib.pyplot as plt
 
-if '__name__'=='__main__':
-    import matplotlib.pyplot as plt
 
-    pixel_counts = []
-    with open("pixel_counts.txt", "r") as f:
-        for line in f:
-            count = int(line.split("Count = ")[1].strip())
-            pixel_counts.append(count)
+pixel_counts = []
+with open("pixel_counts_nib.txt", "r") as f:
+    for line in f:
+        count = int(line.split("Count = ")[1].strip())
+        pixel_counts.append(count)
 
-    # Calculate total pixels
-    total_pixels = sum(pixel_counts)
+# Calculate total pixels
+total_pixels = sum(pixel_counts)
 
-    # Calculate percentages and print them
-    percentage_dict = {}
-    for value, count in enumerate(pixel_counts):
-        percentage = (count / total_pixels) * 100
-        percentage_dict[f'Pixel value {value}'] = percentage
+# Calculate percentages and print them
+percentage_dict = {}
+for value, count in enumerate(pixel_counts):
+    percentage = (count / total_pixels) * 100
+    percentage_dict[f'Pixel value {value}'] = percentage
 
-    # pixel_labels = [f'Pixel value {i}' for i in range(len(pixel_counts))]
+# pixel_labels = [f'Pixel value {i}' for i in range(len(pixel_counts))]
 
-    # Calculate total pixels
-    total_pixels = sum(pixel_counts)
+# Calculate total pixels
+total_pixels = sum(pixel_counts)
 
-    # Calculate percentages
-    pixel_labels = [f'Pixel value {i}' for i in range(0, len(pixel_counts))]
+# Calculate percentages
+pixel_labels = [f'Pixel value {i}' for i in range(0, len(pixel_counts))]
 
-    # Calculate total pixels (excluding Pixel value 0)
-    total_pixels = sum(pixel_counts)
+# Calculate total pixels (excluding Pixel value 0)
+total_pixels = sum(pixel_counts)
 
-    # Calculate percentages
-    percentages = [(count / total_pixels) * 100 for count in pixel_counts]
+# Calculate percentages
+percentages = [(count / total_pixels) * 100 for count in pixel_counts]
 
-    # Plotting the pie chart for Pixel value 0 vs Other values
-    plt.figure(figsize=(8, 8))
-    plt.pie([percentages[0], 100 - percentages[0]], labels=[f'Pixel value 0', 'Other values'],
-            autopct='%1.1f%%', startangle=140)
-    plt.title('Pixel Value 0 vs Other Values')
-    plt.axis('equal')
-    plt.tight_layout()
+# Plotting the pie chart for Pixel value 0 vs Other values
+plt.figure(figsize=(8, 8))
+plt.pie([percentages[0], 100 - percentages[0]], labels=[f'Pixel value 0', 'Other values'],
+        autopct='%1.1f%%', startangle=140)
+plt.title('Pixel Value 0 vs Other Values')
+plt.axis('equal')
+plt.tight_layout()
 
-    # Save or show the pie chart
-    plt.savefig('pie_chart_pixel_0_vs_other.png')  # Save the plot as an image
-    plt.show()  # Show the plot
+# Save or show the pie chart
+plt.savefig('pie_chart_pixel_0_vs_other.png')  # Save the plot as an image
+plt.show()  # Show the plot
 
-    # Plotting the pie chart for other Pixel values (excluding value 0)
-    plt.figure(figsize=(40, 20))
-    plt.pie(percentages[1:], labels=pixel_labels[1:], autopct='%1.1f%%', startangle=140)
-    plt.title('Pixel Value Distribution (Excluding Pixel value 0)')
-    plt.axis('equal')
-    plt.tight_layout()
+# Plotting the pie chart for other Pixel values (excluding value 0)
+plt.figure(figsize=(40, 20))
+plt.pie(percentages[1:], labels=pixel_labels[1:], autopct='%1.1f%%', startangle=140)
+plt.title('Pixel Value Distribution (Excluding Pixel value 0)')
+plt.axis('equal')
+plt.tight_layout()
 
-    # Save or show the pie chart
-    plt.savefig('pie_chart_other_values.png')  # Save the plot as an image
-    plt.show()  # Show the plot
+# Save or show the pie chart
+plt.savefig('pie_chart_other_values.png')  # Save the plot as an image
+plt.show()  # Show the plot
 
-    plt.figure(figsize=(40, 20))
-    plt.bar(pixel_labels[1:], percentages[1:], color='blue')
-    for i in range(1, len(pixel_labels)):
-        plt.text(pixel_labels[i], percentages[i] + 0.5, f"{percentages[i]:.4f}%", ha='center')
-    plt.xlabel('Pixel Value')
-    plt.ylabel('Percentage')
-    plt.title('Pixel Value Distribution')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
+plt.figure(figsize=(40, 20))
+plt.bar(pixel_labels[1:], percentages[1:], color='blue')
+for i in range(1, len(pixel_labels)):
+    plt.text(pixel_labels[i], percentages[i] + 0.5, f"{percentages[i]:.4f}%", ha='center')
+plt.xlabel('Pixel Value')
+plt.ylabel('Percentage')
+plt.title('Pixel Value Distribution')
+plt.xticks(rotation=45)
+plt.tight_layout()
 
-    # Save or show the bar chart
-    plt.savefig('bar_chart.png')  # Save the plot as an image
-    plt.show()  # Show the plot
+# Save or show the bar chart
+plt.savefig('bar_chart.png')  # Save the plot as an image
+plt.show()  # Show the plot
 
-    output_file_path = "percentages_with_values.txt"
+output_file_path = "percentages_with_values.txt"
 
-    # Write pixel values and corresponding percentages to the output file
-    with open(output_file_path, "w") as f:
-        for value, percentage in enumerate(percentages):
-            f.write(f"Pixel value {value}: {percentage:.6f}%\n")
+# Write pixel values and corresponding percentages to the output file
+with open(output_file_path, "w") as f:
+    for value, percentage in enumerate(percentages):
+        f.write(f"Pixel value {value}: {percentage:.6f}%\n")
 
-    print("Pixel values and percentages written to:", output_file_path)
+print("Pixel values and percentages written to:", output_file_path)
+

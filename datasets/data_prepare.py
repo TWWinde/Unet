@@ -241,7 +241,7 @@ if '__name__'=='__main__':
     plt.savefig('pie_chart_other_values.png')  # Save the plot as an image
     plt.show()  # Show the plot
 
-    plt.figure(figsize=(20, 20))
+    plt.figure(figsize=(40, 20))
     plt.bar(pixel_labels[1:], percentages[1:], color='blue')
     for i in range(1, len(pixel_labels)):
         plt.text(pixel_labels[i], percentages[i] + 0.5, f"{percentages[i]:.4f}%", ha='center')

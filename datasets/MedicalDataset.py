@@ -53,8 +53,8 @@ class MedicalDataset(torch.utils.data.Dataset):
         x_start = (patch_idx % ((256 - self.patch_size) // self.stride + 1)) * self.stride
         y_start = (patch_idx // ((256 - self.patch_size) // self.stride + 1)) * self.stride
 
-        patch_image = image[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size, :]
-        patch_label = label[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size, :]
+        patch_image = image[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size]
+        patch_label = label[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size]
 
         return patch_image, patch_label
 

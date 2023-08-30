@@ -19,7 +19,7 @@ class MedicalDataset(torch.utils.data.Dataset):
         opt.cache_filelist_read = False
         opt.cache_filelist_write = False
         opt.aspect_ratio = 1.0
-        self.num_patches_per_image = 20
+        self.num_patches_per_image = 15
         self.opt = opt
         self.patch_size = 128
         self.stride = 64
@@ -40,7 +40,7 @@ class MedicalDataset(torch.utils.data.Dataset):
         label = label.get_fdata()
         if patch_idx < 5:
             patch_image, patch_label = self.get_patch(patch_idx, image, label)
-        elif patch_idx > 16:
+        elif patch_idx > 11:
             patch_image, patch_label = self.get_patch(patch_idx-7, image, label)
         else:
             patch_image, patch_label = self.get_patch(5, image, label)

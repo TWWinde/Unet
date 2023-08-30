@@ -102,5 +102,5 @@ class MedicalDataset(torch.utils.data.Dataset):
         if np.random.rand() < 0.5:
             image = np.flipud(image)
             label = np.flipud(label)
-        return image, label
+        return np.ascontiguousarray(image), np.ascontiguousarray(label)
 

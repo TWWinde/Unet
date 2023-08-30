@@ -85,7 +85,7 @@ class MedicalDataset(torch.utils.data.Dataset):
         else:
             image = (image - min_value) / (max_value - min_value)
 
-        image = Image.fromarray(image)
+       # image = Image.fromarray(image)
         # Apply data augmentation
         image, label = self.augmentation(image, label)
         # to tensor

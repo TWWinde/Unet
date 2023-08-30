@@ -87,8 +87,7 @@ class MedicalDataset(torch.utils.data.Dataset):
 
         image = Image.fromarray(image)
         # Apply data augmentation
-        image = self.augmentation(image)
-        label = self.augmentation(label)
+        image, label = self.augmentation(image, label)
         # to tensor
         image = TR.functional.to_tensor(image)
         label = TR.functional.to_tensor(label)
@@ -96,10 +95,12 @@ class MedicalDataset(torch.utils.data.Dataset):
 
         return image, label
 
-    def augmentation(self, image):
-        transform = TR.Compose([
-            TR.RandomHorizontalFlip(),
-            TR.RandomVerticalFlip(),
+    def augmentation(self, image, label):
+        if np.random.rand() < 0.5:
+            image = np.fliplr(image)
+            label = np.fliplr(label)
+        if np.random.rand() < 0.5:
+            image = np.flipud(image)
+            label = np.flipud(label)
+        return image, label
 
-        ])
-        return transform(image)

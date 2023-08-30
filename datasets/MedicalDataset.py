@@ -19,23 +19,45 @@ class MedicalDataset(torch.utils.data.Dataset):
         opt.cache_filelist_read = False
         opt.cache_filelist_write = False
         opt.aspect_ratio = 1.0
-
+        self.num_patches_per_image = 15
         self.opt = opt
+        self.patch_size = 128
+        self.stride = 64
+
         self.for_metrics = for_metrics
         self.images, self.labels = self.list_images()
 
+
     def __len__(self, ):
-        return len(self.images)
+        return len(self.images)* self.num_patches_per_image
 
     def __getitem__(self, idx):
-        image = nib.load(self.images[idx])
+        image_idx = idx // self.num_patches_per_image
+        patch_idx = idx % self.num_patches_per_image
+        image = nib.load(self.images[image_idx])
         image = image.get_fdata()
-        label = nib.load(self.labels[idx])
+        label = nib.load(self.labels[image_idx])
         label = label.get_fdata()
-        # numpy array
-        image, label = self.transforms(image, label)
+        if patch_idx < 5:
+            patch_image, patch_label = self.get_patch(patch_idx, image, label)
+        elif patch_idx > 11:
+            patch_image, patch_label = self.get_patch(patch_idx-7, image, label)
+        else:
+            patch_image, patch_label = self.get_patch(5, image, label)
 
-        return {"image": image, "label": label}
+        image_patch, label_patch = self.transforms(patch_image, patch_label)
+        return {"image": image_patch, "label": label_patch}
+
+    def get_patch(self, patch_idx, image, label):
+
+        x_start = (patch_idx % ((256 - self.patch_size) // self.stride + 1)) * self.stride
+        y_start = (patch_idx // ((256 - self.patch_size) // self.stride + 1)) * self.stride
+
+        patch_image = image[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size, :]
+        patch_label = label[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size, :]
+
+        return patch_image, patch_label
+
 
     def list_images(self):
         mode = "val2" if self.opt.phase == "test2" else "train2"
@@ -52,31 +74,32 @@ class MedicalDataset(torch.utils.data.Dataset):
         return images, labels
 
     def transforms(self, image, label):
-        assert image.size == label.size
+        assert image.shape == label.shape
         # normalize
         label = label.astype(np.int)
         max_value = np.max(image)
         min_value = np.min(image)
 
-        # 检查分母是否为零
         if max_value - min_value == 0:
-            image = np.zeros_like(image, dtype=np.uint8)  # 图像最大值和最小值相等，设置为全黑
+            image = np.zeros_like(image, dtype=np.uint8)
         else:
-            image = (image - min_value) / (max_value - min_value)  # 进行归一化
+            image = (image - min_value) / (max_value - min_value)
 
-        #image = (image - image.min()) / (image.max() - image.min())
         image = Image.fromarray(image)
-        # flip
-        #if not (self.opt.phase == "test" or self.opt.no_flip or self.for_metrics):
-            #if random.random() < 0.5:
-                #image = np.fliplr(image)
-                #label = np.fliplr(label)
-            #elif random.random() < 0.5:
-                #image = ndimage.rotate(image, 90)
-                #label = ndimage.rotate(label, 90)
+        # Apply data augmentation
+        image = self.augmentation(image)
+        label = self.augmentation(label)
         # to tensor
         image = TR.functional.to_tensor(image)
         label = TR.functional.to_tensor(label)
-        #image = TR.functional.normalize(image, [0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+
 
         return image, label
+
+    def augmentation(self, image):
+        transform = TR.Compose([
+            TR.RandomHorizontalFlip(),
+            TR.RandomVerticalFlip(),
+
+        ])
+        return transform(image)

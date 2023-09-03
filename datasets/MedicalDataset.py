@@ -19,7 +19,10 @@ class MedicalDataset(torch.utils.data.Dataset):
         opt.cache_filelist_read = False
         opt.cache_filelist_write = False
         opt.aspect_ratio = 1.0
-        self.num_patches_per_image = 15
+        self.num_patches_per_image = 9
+        self.num_patches_for_oversampling = 1
+        self.oversample_factor = 6
+        self.num_patches_per_image_after_obersampling = self.num_patches_per_image + self.oversample_factor * self.num_patches_for_oversampling
         self.opt = opt
         self.patch_size = 128
         self.stride = 64
@@ -29,32 +32,50 @@ class MedicalDataset(torch.utils.data.Dataset):
 
 
     def __len__(self, ):
-        return len(self.images)* self.num_patches_per_image
+        return len(self.images)* self.num_patches_per_image_after_obersampling
 
     def __getitem__(self, idx):
-        image_idx = idx // self.num_patches_per_image
-        patch_idx = idx % self.num_patches_per_image
-        image = nib.load(self.images[image_idx])
-        image = image.get_fdata()
-        label = nib.load(self.labels[image_idx])
-        label = label.get_fdata()
-        if patch_idx < 5:
-            patch_image, patch_label = self.get_patch(patch_idx, image, label)
-        elif patch_idx > 11:
-            patch_image, patch_label = self.get_patch(patch_idx-7, image, label)
-        else:
-            patch_image, patch_label = self.get_patch(5, image, label)
+        if self.opt.phase == "train2":
+            image_idx = idx // self.num_patches_per_image_after_obersampling
+            patch_idx = idx % self.num_patches_per_image_after_obersampling
+            image = nib.load(self.images[image_idx])
+            image = image.get_fdata()
+            label = nib.load(self.labels[image_idx])
+            label = label.get_fdata()
+            if patch_idx < (self.num_patches_per_image_after_obersampling - (self.oversample_factor * self.num_patches_for_oversampling - 1)) / 2:
+                patch_image, patch_label = self.get_patch(patch_idx, image, label)
+            elif patch_idx > (self.num_patches_per_image_after_obersampling - (self.oversample_factor * self.num_patches_for_oversampling - 1)) / 2 + self.oversample_factor * self.num_patches_for_oversampling :
+                patch_image, patch_label = self.get_patch(patch_idx - self.oversample_factor * self.num_patches_for_oversampling -1, image, label)
+            else:
+                patch_image, patch_label = self.get_patch((self.num_patches_per_image_after_obersampling - (self.oversample_factor - 1)) / 2, image, label)
 
-        image_patch, label_patch = self.transforms(patch_image, patch_label)
-        return {"image": image_patch, "label": label_patch}
+            patch_image, patch_label = self.transforms(patch_image, patch_label)
+
+        elif self.opt.phase == "test2":
+            image_idx = idx // (self.opt.load_size/self.patch_size)**2
+            patch_idx = idx % (self.opt.load_size/self.patch_size)**2
+            image = nib.load(self.images[image_idx])
+            image = image.get_fdata()
+            label = nib.load(self.labels[image_idx])
+            label = label.get_fdata()
+            patch_image, patch_label = self.get_patch(patch_idx, image, label)
+            patch_image, patch_label = self.transforms(patch_image, patch_label)
+
+        return {"image": patch_image, "label": patch_label}
 
     def get_patch(self, patch_idx, image, label):
+        if self.opt.phase == "train2":
+            x_start = (patch_idx % ((256 - self.patch_size) // self.stride + 1)) * self.stride
+            y_start = (patch_idx // ((256 - self.patch_size) // self.stride + 1)) * self.stride
 
-        x_start = (patch_idx % ((256 - self.patch_size) // self.stride + 1)) * self.stride
-        y_start = (patch_idx // ((256 - self.patch_size) // self.stride + 1)) * self.stride
+            patch_image = image[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size]
+            patch_label = label[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size]
+        elif self.opt.phase == "test2":
+            x_start = (patch_idx % ((256 - self.patch_size) // self.patch_size + 1)) * self.patch_size
+            y_start = (patch_idx // ((256 - self.patch_size) // self.patch_size + 1)) * self.patch_size
 
-        patch_image = image[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size]
-        patch_label = label[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size]
+            patch_image = image[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size]
+            patch_label = label[x_start:x_start + self.patch_size, y_start:y_start + self.patch_size]
 
         return patch_image, patch_label
 
@@ -87,11 +108,11 @@ class MedicalDataset(torch.utils.data.Dataset):
 
        # image = Image.fromarray(image)
         # Apply data augmentation
-        image, label = self.augmentation(image, label)
+        if self.opt.phase == "train2":
+            image, label = self.augmentation(image, label)
         # to tensor
         image = TR.functional.to_tensor(image)
         label = TR.functional.to_tensor(label)
-
 
         return image, label
 

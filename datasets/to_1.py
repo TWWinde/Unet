@@ -29,7 +29,7 @@ def rename_copy(root_dir):
             gray_image = cv2.imread(original_file_path, cv2.IMREAD_GRAYSCALE)
             # 调整图像维度，使其成为 (1, 256, 256)
             gray_image = np.expand_dims(gray_image, axis=0)
-            gray_image = np.transpose(gray_image, (2, 0, 1))
+            #gray_image = np.transpose(gray_image, (2, 0, 1))
             nifti_image = nib.Nifti1Image(gray_image, affine=np.eye(4))  # 这里使用单位矩阵作为仿射矩阵
             nib.save(nifti_image, new_file_path)
             n+=1

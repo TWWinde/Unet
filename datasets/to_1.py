@@ -21,17 +21,26 @@ def rename_copy(root_dir):
     print('label finished')
     n = 1
     for i in range(3):
-        for item in sorted(os.listdir(os.path.join(root_dir, name[i], 'CT1'))):
-            original_file_path = os.path.join(root_dir, name[i], 'CT1', item)
-            new_filename = f'body_{n:06}_0001.nii.gz'
+        for item in sorted(os.listdir(os.path.join(root_dir, name[i], 'CT'))):
+            original_file_path = os.path.join(root_dir, name[i], 'CT', item)
             destination_folder = '/no_backups/s1449/nnUNetFrame/DATASET/nnUNet_raw/Dataset521_AutoPET/imagesTr'
-            new_file_path = os.path.join(destination_folder, new_filename)
-            gray_image = cv2.imread(original_file_path, cv2.IMREAD_GRAYSCALE)
-            # 调整图像维度，使其成为 (1, 256, 256)
-            gray_image = np.expand_dims(gray_image, axis=0)
-            #gray_image = np.transpose(gray_image, (2, 0, 1))
-            nifti_image = nib.Nifti1Image(gray_image, affine=np.eye(4))  # 这里使用单位矩阵作为仿射矩阵
-            nib.save(nifti_image, new_file_path)
+            image = cv2.imread(original_file_path)
+            b, g, r = cv2.split(image)
+            blue_channel = np.expand_dims(b, axis=0)
+            green_channel = np.expand_dims(g, axis=0)
+            red_channel = np.expand_dims(r, axis=0)
+            new_filename0 = f'body_{n:06}_0000.nii.gz'
+            new_filename1 = f'body_{n:06}_0001.nii.gz'
+            new_filename2 = f'body_{n:06}_0002.nii.gz'
+            new_file_path0 = os.path.join(destination_folder, new_filename0)
+            new_file_path1 = os.path.join(destination_folder, new_filename1)
+            new_file_path2 = os.path.join(destination_folder, new_filename2)
+            nifti_image0 = nib.Nifti1Image(red_channel, affine=np.eye(4))  # 这里使用单位矩阵作为仿射矩阵
+            nib.save(nifti_image0, new_file_path0)
+            nifti_image1 = nib.Nifti1Image(green_channel, affine=np.eye(4))  # 这里使用单位矩阵作为仿射矩阵
+            nib.save(nifti_image1, new_file_path1)
+            nifti_image2 = nib.Nifti1Image(blue_channel, affine=np.eye(4))  # 这里使用单位矩阵作为仿射矩阵
+            nib.save(nifti_image2, new_file_path2)
             n+=1
     print('images finished')
 

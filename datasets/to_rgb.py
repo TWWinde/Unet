@@ -24,26 +24,26 @@ n=0
 for item in sorted(os.listdir('/misc/data/private/autoPET/train3/CT')):
     image = Image.open(os.path.join('/misc/data/private/autoPET/train3/CT', item))
     image = image.convert('RGB')
-    image.save(os.path.join(f'/misc/data/private/autoPET/data_nnunet/train/images/ct_slice_{n}'))
+    image.save(os.path.join(f'/misc/data/private/autoPET/data_nnunet/train/images/ct_slice_{n}.png'))
     n+=1
 
 n=0
 for item in sorted(os.listdir('/misc/data/private/autoPET/test3/CT')):
     image = Image.open(os.path.join('/misc/data/private/autoPET/test3/CT', item))
     image = image.convert('RGB')
-    image.save(os.path.join(f'/misc/data/private/autoPET/data_nnunet/test/images/ct_slice_{n}'))
+    image.save(os.path.join(f'/misc/data/private/autoPET/data_nnunet/test/images/ct_slice_{n}.png'))
     n+=1
 
 n = 0
 for item in sorted(os.listdir('/misc/data/private/autoPET/train3/SEG')):
     original_file_path = os.path.join('/misc/data/private/autoPET/train3/SEG', item)
-    new_file_path = f'/misc/data/private/autoPET/data_nnunet/train/labels/ct_slice_{n}'
+    new_file_path = f'/misc/data/private/autoPET/data_nnunet/train/labels/ct_slice_{n}.png'
     shutil.copyfile(original_file_path, new_file_path)
     n += 1
 
 n = 0
 for item in sorted(os.listdir('/misc/data/private/autoPET/test3/SEG')):
     original_file_path = os.path.join('/misc/data/private/autoPET/train3/SEG', item)
-    new_file_path = f'/misc/data/private/autoPET/data_nnunet/test/labels/ct_slice_{n}'
+    new_file_path = f'/misc/data/private/autoPET/data_nnunet/test/labels/ct_slice_{n}.png'
     shutil.copyfile(original_file_path, new_file_path)
     n += 1

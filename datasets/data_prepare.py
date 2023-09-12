@@ -7,7 +7,7 @@ import torch
 from PIL import Image
 
 
-def get_2d_images(ct_path, label_path):
+def get_2d_nifti(ct_path, label_path):
     n = 0
 
     for i in range(int(len(ct_path) * 0.9)):
@@ -77,6 +77,87 @@ def get_2d_images(ct_path, label_path):
 
 
 
+
+
+
+def get_2d_images(ct_path, label_path):
+    n = 0
+    for i in range(int(len(ct_path) * 0.9)):
+        nifti_img = nib.load(ct_path[i])
+        img_3d = nifti_img.get_fdata()
+        nifti_seg = nib.load(label_path[i])
+        seg_3d = nifti_seg.get_fdata()
+
+        for z in range(seg_3d.shape[2]):
+            seg_slice = seg_3d[:, :, z]
+            seg_slice = seg_slice[72:328, 65:321]
+            img_slice = img_3d[:, :, z]
+            img_slice = img_slice[72:328, 65:321]
+            #img_slice = remove_background(img_slice)
+
+            if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
+                #plt.imsave(f'/misc/data/private/autoPET/train3/CT/CT_slice_{n}.png', img_slice,cmap='gray')
+                #cv2.imwrite(f'/misc/data/private/autoPET/train3/CT/CT_slice_{n}.png', img_slice)
+                cv2.imwrite(f'/misc/data/private/autoPET/train3/SEG1/SEG_slice_{n}.png', seg_slice)
+                #new_affine2 = nifti_seg.affine.copy()
+                #sliced_nifti_seg = nib.Nifti1Image(seg_slice, new_affine2)
+                #nib.save(sliced_nifti_seg, f'/misc/data/private/autoPET/train3/SEG/sliced_image_{n}.nii.gz')
+
+                n += 1
+
+    print("finished train data set")
+    n = 0
+    for j in range(int(len(ct_path) * 0.9), int(len(ct_path) * 0.95)):
+        nifti_img = nib.load(ct_path[j])
+        img_3d = nifti_img.get_fdata()
+        nifti_seg = nib.load(label_path[j])
+        seg_3d = nifti_seg.get_fdata()
+
+        for z in range(seg_3d.shape[2]):
+            seg_slice = seg_3d[:, :, z]
+            seg_slice = seg_slice[72:328, 65:321]
+            img_slice = img_3d[:, :, z]
+            img_slice = img_slice[72:328, 65:321]
+            #img_slice = remove_background(img_slice)
+
+            if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
+                #plt.imsave(f'/misc/data/private/autoPET/test3/CT/CT_slice_{n}.png', img_slice,cmap='gray')
+                #cv2.imwrite(f'/misc/data/private/autoPET/test3/CT/CT_slice_{n}.png', img_slice)
+                cv2.imwrite(f'/misc/data/private/autoPET/test3/SEG1/SEG_slice_{n}.png', seg_slice)
+                #new_affine2 = nifti_seg.affine.copy()
+                #sliced_nifti_seg = nib.Nifti1Image(seg_slice, new_affine2)
+                #nib.save(sliced_nifti_seg, f'/misc/data/private/autoPET/test3/SEG/sliced_image_{n}.nii.gz')
+
+                n += 1
+
+    print("finished test data set")
+    n = 0
+    for k in range(int(len(ct_path) * 0.95), len(ct_path)):
+        nifti_img = nib.load(ct_path[k])
+        img_3d = nifti_img.get_fdata()
+        nifti_seg = nib.load(label_path[k])
+        seg_3d = nifti_seg.get_fdata()
+
+        for z in range(seg_3d.shape[2]):
+            seg_slice = seg_3d[:, :, z]
+            seg_slice = seg_slice[72:328, 65:321]
+            img_slice = img_3d[:, :, z]
+            img_slice = img_slice[72:328, 65:321]
+            #img_slice = remove_background(img_slice)
+
+            if img_slice.max() != img_slice.min() and seg_slice.max() != seg_slice.min():
+                #plt.imsave(f'/misc/data/private/autoPET/val3/CT/CT_slice_{n}.png', img_slice,cmap='gray')
+                #cv2.imwrite(f'/misc/data/private/autoPET/val3/CT/CT_slice_{n}.png', img_slice)
+                cv2.imwrite(f'/misc/data/private/autoPET/val3/SEG1/SEG_slice_{n}.png', seg_slice)
+                #new_affine2 = nifti_seg.affine.copy()
+                #sliced_nifti_seg = nib.Nifti1Image(seg_slice, new_affine2)
+                #nib.save(sliced_nifti_seg, f'/misc/data/private/autoPET/val3/SEG/sliced_image_{n}.nii.gz')
+
+                n += 1
+
+    print("finished validation data set")
+
+
 def list_images(path):
     ct_path = []
     label_path = []
@@ -91,17 +172,41 @@ def list_images(path):
     return ct_path, label_path
 
 
-os.makedirs('/misc/data/private/autoPET/train2/CT', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/train2/SEG', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/test2/CT', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/test2/SEG', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/val2/CT', exist_ok=True)
-os.makedirs('/misc/data/private/autoPET/val2/SEG', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/train3/CT1', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/train3/SEG1', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/test3/CT1', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/test3/SEG1', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/val3/CT1', exist_ok=True)
+os.makedirs('/misc/data/private/autoPET/val3/SEG1', exist_ok=True)
 path_imagesTr = "/misc/data/private/autoPET/imagesTr"
 root_dir = "/misc/data/private/autoPET/"
 test_path = '/misc/data/private/autoPET/train/SEG'
 
 ct_paths, label_paths = list_images(path_imagesTr)
+#unique_value = set()
+# for item in label_paths:
+#     nifti_seg = nib.load(item)
+#     seg_3d = nifti_seg.get_fdata()
+#     flat_data = seg_3d.flatten().tolist()
+#     for value in flat_data:
+#         unique_value.add(value)
+
+#for item in sorted(os.listdir(test_path)):
+#    image_path = os.path.join(test_path, item)
+#    image = cv2.imread(image_path)
+ #   flat_data = image.flatten().tolist()
+ #   for value in flat_data:
+ #       unique_value.add(value)
+
+#print(unique_value)
+#print('number of classes:',len(unique_value))
+
+
+get_2d_images(ct_paths, label_paths)
+
+
+
+
 
 #get_2d_images(ct_paths, label_paths)
 
